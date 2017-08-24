@@ -7,12 +7,16 @@ HEADERS += \
     updater_p.h \
     updater.h \
     simplescheduler_p.h \
-    qtautoupdatercore_global.h
+    qtautoupdatercore_global.h \
+    updaterplugin.h \
+    updatebackend.h
 
 SOURCES += \
     simplescheduler.cpp \
     updater_p.cpp \
-    updater.cpp
+    updater.cpp \
+    updaterplugin.cpp \
+    updatebackend.cpp
 
 load(qt_module)
 

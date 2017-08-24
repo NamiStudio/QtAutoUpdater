@@ -2,6 +2,7 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS += autoupdatercore \
+	plugins \
 	autoupdatergui
 
 autoupdatergui.depends += autoupdatercore
