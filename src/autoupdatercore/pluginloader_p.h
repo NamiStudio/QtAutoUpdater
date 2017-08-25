@@ -18,6 +18,7 @@ public:
 
 	static PluginLoader *instance();
 
+	QByteArrayList listTypes() const;
 	UpdateBackend *getBackend(const QByteArray &type, const QString &path, QObject *parent);
 
 private:

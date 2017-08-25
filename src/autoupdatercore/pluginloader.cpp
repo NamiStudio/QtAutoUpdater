@@ -65,6 +65,11 @@ PluginLoader *PluginLoader::instance()
 	return loader;
 }
 
+QByteArrayList PluginLoader::listTypes() const
+{
+	return plugins.keys();
+}
+
 UpdateBackend *PluginLoader::getBackend(const QByteArray &type, const QString &path, QObject *parent)
 {
 	auto loader = plugins.value(type, nullptr);

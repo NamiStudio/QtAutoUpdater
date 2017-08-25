@@ -29,9 +29,8 @@ Updater::Updater(const QString &maintenanceToolPath, QObject *parent) :
 
 Updater::Updater(const QString &maintenanceToolPath, const QByteArray &type, QObject *parent) :
 	QObject(parent),
-	d(new UpdaterPrivate(this))
+	d(new UpdaterPrivate(maintenanceToolPath, type, this))
 {
-	d->toolPath = maintenanceToolPath;
 	d->backend = PluginLoader::instance()->getBackend(type, maintenanceToolPath, this);
 
 	if(d->backend) {
@@ -73,6 +72,11 @@ bool Updater::isValid() const
 	return d->backend;
 }
 
+QByteArray Updater::updaterType() const
+{
+	return d->type;
+}
+
 QString Updater::errorString() const
 {
 	return d->lastErrorString;
@@ -104,6 +108,11 @@ Updater::UpdaterState Updater::state() const
 QList<Updater::UpdateInfo> Updater::updateInfo() const
 {
 	return d->updateInfos;
+}
+
+QByteArrayList Updater::supportedUpdaterTypes()
+{
+	return PluginLoader::instance()->listTypes();
 }
 
 bool Updater::exitedNormally() const
@@ -216,11 +225,12 @@ QDebug &operator<<(QDebug &debug, const Updater::UpdateInfo &info)
 
 // ------------- PRIVATE IMPLEMENTATION -------------
 
-UpdaterPrivate::UpdaterPrivate(Updater *q_ptr) :
+UpdaterPrivate::UpdaterPrivate(const QString &maintenanceToolPath, const QByteArray &type, Updater *q_ptr) :
 	QObject(nullptr),
 	q(q_ptr),
 	backend(nullptr),
-	toolPath(),
+	toolPath(maintenanceToolPath),
+	type(type),
 	state(Updater::NoUpdates),
 	updateInfos(),
 	lastErrorString(),

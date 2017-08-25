@@ -67,6 +67,7 @@ public:
 	~Updater();
 
 	bool isValid() const;
+	QByteArray updaterType() const;
 	//! Returns the mainetancetools error string of the last update
 	QString errorString() const;
 	QByteArray extendedErrorLog() const;
@@ -79,6 +80,8 @@ public:
 	UpdaterState state() const;
 	//! readAcFn{Updater::updateInfo}
 	QList<UpdateInfo> updateInfo() const;
+
+	static QByteArrayList supportedUpdaterTypes();
 
 	QT_DEPRECATED bool exitedNormally() const;
 	QT_DEPRECATED QByteArray errorLog() const;

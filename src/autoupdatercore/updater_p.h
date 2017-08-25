@@ -20,6 +20,7 @@ public:
 	UpdateBackend *backend;
 
 	QString toolPath;
+	QByteArray type;
 	Updater::UpdaterState state;
 	QList<Updater::UpdateInfo> updateInfos;
 	QString lastErrorString;
@@ -30,7 +31,7 @@ public:
 	QStringList runArguments;
 	QScopedPointer<AdminAuthoriser> adminAuth;
 
-	UpdaterPrivate(Updater *q_ptr);
+	UpdaterPrivate(const QString &maintenanceToolPath, const QByteArray &type, Updater *q_ptr);
 
 public Q_SLOTS:
 	void updateCheckCompleted(const QList<Updater::UpdateInfo> &updates);

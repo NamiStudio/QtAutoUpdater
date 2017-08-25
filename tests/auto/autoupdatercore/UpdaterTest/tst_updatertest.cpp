@@ -59,10 +59,13 @@ void UpdaterTest::initTestCase()
 
 void UpdaterTest::testUpdaterInitState()
 {
+	QVERIFY(Updater::supportedUpdaterTypes().contains("qtifw"));
+
 	updater = new Updater(this);
 
 	//error state
 	QVERIFY(!updater->isValid());//maintenance tool does not exist
+	QCOMPARE(updater->updaterType(), QByteArray("qtifw"));
 	QVERIFY(updater->errorString().isEmpty());
 	QVERIFY(updater->extendedErrorLog().isEmpty());
 	QVERIFY(!updater->willRunOnExit());
