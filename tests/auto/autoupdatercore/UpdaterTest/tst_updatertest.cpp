@@ -65,11 +65,9 @@ void UpdaterTest::testUpdaterInitState()
 	QVERIFY(updater->extendedErrorLog().isEmpty());
 
 	//properties
-#if defined(Q_OS_WIN32)
-	QCOMPARE(updater->maintenanceToolPath(), QStringLiteral("./maintenancetool.exe"));
-#elif defined(Q_OS_OSX)
-	QCOMPARE(updater->maintenanceToolPath(), QStringLiteral("../../maintenancetool.app/Contents/MacOS/maintenancetool"));
-#elif defined(Q_OS_UNIX)
+#ifdef Q_OS_OSX
+	QCOMPARE(updater->maintenanceToolPath(), QStringLiteral("../../maintenancetool"));
+#else
 	QCOMPARE(updater->maintenanceToolPath(), QStringLiteral("./maintenancetool"));
 #endif
 	QCOMPARE(updater->isRunning(), false);
