@@ -11,14 +11,13 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	QtAutoUpdater::Updater *updater = new QtAutoUpdater::Updater(a.arguments()[1],
-																 nullptr);
-
-	QObject::connect(updater, &QtAutoUpdater::Updater::checkUpdatesDone, [updater](bool hasUpdate, bool hasError){
+	QtAutoUpdater::Updater *updater = new QtAutoUpdater::Updater(a.arguments()[1], nullptr);
+	QObject::connect(updater, &QtAutoUpdater::Updater::updateCheckDone, [updater](bool hasUpdate){
 		qDebug() << "Has updates:" << hasUpdate
-				 << "\nHas errors:" << hasError
-				 << "\nError string:" << updater->errorLog();
-		qDebug() << updater->updateInfo();
+				 << "\nState:" << updater->state()
+				 << "\nError string:" << updater->errorString()
+				 << "\nExtended error log:\n" << updater->errorString();
+		qDebug() << "Updates:" << updater->updateInfo();
 		if(hasUpdate)
 			updater->runUpdaterOnExit(QtAutoUpdater::Updater::PassiveUpdateArguments);
 		qApp->quit();

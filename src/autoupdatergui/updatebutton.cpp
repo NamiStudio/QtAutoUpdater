@@ -103,7 +103,7 @@ void UpdateButton::changeUpdaterState(bool isRunning)
 	}
 }
 
-void UpdateButton::updatesReady(Updater::UpdaterState result)
+void UpdateButton::updatesReady(int result)
 {
 	changeUpdaterState(false);
 	if(d->showResult) {
@@ -167,7 +167,9 @@ void UpdateButtonPrivate::updateController(UpdateController *controller)
 		QObject::connect(this->controller.data(), &UpdateController::runningChanged,
 						 q, &UpdateButton::changeUpdaterState);
 		QObject::connect(this->controller->updater(), &Updater::stateChanged,
-						 q, &UpdateButton::updatesReady);
+						 q, [this](Updater::UpdaterState state) {
+			q->updatesReady(state);
+		});
 		QObject::connect(this->controller.data(), &UpdateController::destroyed,
 						 q, &UpdateButton::controllerDestroyed);
 	}

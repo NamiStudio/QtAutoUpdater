@@ -8,6 +8,8 @@ CONFIG -= app_bundle
 
 TARGET = ConsoleUpdater
 
+DEFINES += OUTDIR=\\\"$$OUT_PWD/\\\"
+
 SOURCES += main.cpp
 
 target.path = $$[QT_INSTALL_EXAMPLES]/autoupdatercore/ConsoleUpdater
