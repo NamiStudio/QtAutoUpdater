@@ -51,9 +51,9 @@ Updater::Updater(const QString &maintenanceToolPath, const QByteArray &type, QOb
 	QT_WARNING_PUSH
 	QT_WARNING_DISABLE_DEPRECATED
 	connect(this, &Updater::updateCheckDone, this, [this](bool hasUpdates){
-		emit checkUpdatesDone(hasUpdates, updaterState() == HasError);
+		emit checkUpdatesDone(hasUpdates, state() == HasError);
 	});
-	connect(this, &Updater::updaterStateChanged, this, [this](UpdaterState state) {
+	connect(this, &Updater::stateChanged, this, [this](UpdaterState state) {
 		emit runningChanged(state == Running);
 	});
 	QT_WARNING_POP
@@ -71,11 +71,6 @@ Updater::~Updater()
 bool Updater::isValid() const
 {
 	return d->backend;
-}
-
-Updater::UpdaterState Updater::updaterState() const
-{
-	return d->state;
 }
 
 QString Updater::errorString() const
@@ -101,6 +96,11 @@ QString Updater::maintenanceToolPath() const
 	return d->toolPath;
 }
 
+Updater::UpdaterState Updater::state() const
+{
+	return d->state;
+}
+
 QList<Updater::UpdateInfo> Updater::updateInfo() const
 {
 	return d->updateInfos;
@@ -108,7 +108,7 @@ QList<Updater::UpdateInfo> Updater::updateInfo() const
 
 bool Updater::exitedNormally() const
 {
-	return updaterState() != HasError;
+	return state() != HasError;
 }
 
 QByteArray Updater::errorLog() const
@@ -130,7 +130,7 @@ bool Updater::checkForUpdates()
 		d->state = Running;
 		d->lastErrorString.clear();
 
-		emit updaterStateChanged(d->state);
+		emit stateChanged(d->state);
 		emit updateInfoChanged(d->updateInfos);
 
 		d->backend->startUpdateCheck();
@@ -235,7 +235,7 @@ void UpdaterPrivate::updateCheckCompleted(const QList<Updater::UpdateInfo> &upda
 	updateInfos = updates;
 	state = updates.isEmpty() ? Updater::NoUpdates : Updater::HasUpdates;
 	lastErrorString.clear();
-	emit q->updaterStateChanged(state);
+	emit q->stateChanged(state);
 	if(!updateInfos.isEmpty())
 		emit q->updateInfoChanged(updateInfos);
 	emit q->updateCheckDone(state == Updater::HasUpdates);
@@ -245,7 +245,7 @@ void UpdaterPrivate::updateCheckFailed(const QString &errorString)
 {
 	state = Updater::HasError;
 	lastErrorString = errorString;
-	emit q->updaterStateChanged(state);
+	emit q->stateChanged(state);
 	emit q->updateCheckDone(false);
 }
 

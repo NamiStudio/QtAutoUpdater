@@ -170,7 +170,7 @@ bool UpdateController::start(DisplayLevel displayLevel)
 
 bool UpdateController::cancelUpdate(int maxDelay)
 {
-	if(d->mainUpdater->updaterState() == Updater::Running) {
+	if(d->mainUpdater->state() == Updater::Running) {
 		d->wasCanceled = true;
 		if(d->checkUpdatesProgress)
 			d->checkUpdatesProgress->setCanceled();
@@ -201,7 +201,7 @@ void UpdateController::cancelScheduledUpdate(int taskId)
 
 void UpdateController::updateCheckDone()
 {
-	auto state = d->mainUpdater->updaterState();
+	auto state = d->mainUpdater->state();
 	auto hasUpdates = state == Updater::HasUpdates;
 	auto hasError = state == Updater::HasError;
 

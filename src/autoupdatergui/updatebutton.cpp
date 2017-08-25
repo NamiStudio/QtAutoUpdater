@@ -166,7 +166,7 @@ void UpdateButtonPrivate::updateController(UpdateController *controller)
 	if(controller) {
 		QObject::connect(this->controller.data(), &UpdateController::runningChanged,
 						 q, &UpdateButton::changeUpdaterState);
-		QObject::connect(this->controller->updater(), &Updater::updaterStateChanged,
+		QObject::connect(this->controller->updater(), &Updater::stateChanged,
 						 q, &UpdateButton::updatesReady);
 		QObject::connect(this->controller.data(), &UpdateController::destroyed,
 						 q, &UpdateButton::controllerDestroyed);

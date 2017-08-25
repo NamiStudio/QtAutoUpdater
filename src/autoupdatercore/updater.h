@@ -23,7 +23,7 @@ class Q_AUTOUPDATERCORE_EXPORT Updater : public QObject
 
 	//! Holds the path of the attached maintenancetool
 	Q_PROPERTY(QString maintenanceToolPath READ maintenanceToolPath CONSTANT FINAL)
-	Q_PROPERTY(UpdaterState updaterState READ updaterState NOTIFY updaterStateChanged)
+	Q_PROPERTY(UpdaterState state READ state NOTIFY stateChanged)
 	//! Holds extended information about the last update check
 	Q_PROPERTY(QList<UpdateInfo> updateInfo READ updateInfo NOTIFY updateInfoChanged)
 
@@ -67,7 +67,6 @@ public:
 	~Updater();
 
 	bool isValid() const;
-	UpdaterState updaterState() const;
 	//! Returns the mainetancetools error string of the last update
 	QString errorString() const;
 	QByteArray extendedErrorLog() const;
@@ -77,6 +76,7 @@ public:
 
 	//! readAcFn{Updater::maintenanceToolPath}
 	QString maintenanceToolPath() const;
+	UpdaterState state() const;
 	//! readAcFn{Updater::updateInfo}
 	QList<UpdateInfo> updateInfo() const;
 
@@ -106,7 +106,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
 	void updateCheckDone(bool hasUpdates);
-	void updaterStateChanged(UpdaterState updaterState);
+	void stateChanged(UpdaterState state);
 	//! notifyAcFn{Updater::updateInfo}
 	void updateInfoChanged(QList<QtAutoUpdater::Updater::UpdateInfo> updateInfo);
 
