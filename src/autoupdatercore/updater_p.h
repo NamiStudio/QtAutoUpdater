@@ -33,11 +33,13 @@ public:
 	};
 
 	Updater *q;
-	UpdateBackend *debugBackend;
+	UpdateBackend *backend;
 
 	QString toolPath;
 	QList<Updater::UpdateInfo> updateInfos;
-	QByteArray lastErrorLog;
+	bool normalExit;
+	int lastErrorCode;
+	QString lastErrorString;
 
 	bool running;
 

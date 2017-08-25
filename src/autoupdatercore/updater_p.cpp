@@ -14,10 +14,12 @@ Q_LOGGING_CATEGORY(logQtAutoUpdater, "QtAutoUpdater")
 UpdaterPrivate::UpdaterPrivate(Updater *q_ptr) :
 	QObject(nullptr),
 	q(q_ptr),
-	debugBackend(nullptr), //TODO
+	backend(nullptr),
 	toolPath(),
 	updateInfos(),
-	lastErrorLog(),
+	normalExit(true),
+	lastErrorCode(0),
+	lastErrorString(),
 	running(false),
 	scheduler(new SimpleScheduler(this)),
 	runOnExit(false),
@@ -36,20 +38,22 @@ UpdaterPrivate::~UpdaterPrivate()
 	if(runOnExit)
 		qCWarning(logQtAutoUpdater) << "Updater destroyed with run on exit active before the application quit";
 
-	if(running)
-		debugBackend->cancelUpdateCheck(0);
+	if(running && backend)
+		backend->cancelUpdateCheck(0);
 }
 
 bool UpdaterPrivate::startUpdateCheck()
 {
-	if(running)
+	if(running || !backend)
 		return false;
 	else {
 		updateInfos.clear();
-		lastErrorLog.clear();
+		normalExit = true;
+		lastErrorCode = 0;
+		lastErrorString.clear();
 
 		running = true;
-		debugBackend->startUpdateCheck();
+		backend->startUpdateCheck();
 
 		emit q->updateInfoChanged(updateInfos);
 		emit q->runningChanged(true);
@@ -60,13 +64,16 @@ bool UpdaterPrivate::startUpdateCheck()
 void UpdaterPrivate::stopUpdateCheck(int delay, bool async)
 {
 	Q_UNUSED(async); //TODO remove
-	debugBackend->cancelUpdateCheck(delay);
+	if(backend)
+		backend->cancelUpdateCheck(delay);
 }
 
 void UpdaterPrivate::updateCheckCompleted(const QList<Updater::UpdateInfo> &updates)
 {
 	running = false;
-	lastErrorLog = debugBackend->extendedErrorLog();
+	normalExit = true;
+	lastErrorCode = 0;
+	lastErrorString.clear();
 	emit q->runningChanged(false);
 
 	updateInfos = updates;
@@ -77,15 +84,16 @@ void UpdaterPrivate::updateCheckCompleted(const QList<Updater::UpdateInfo> &upda
 
 void UpdaterPrivate::updateCheckFailed(const QString &errorString, int errorCode)
 {
-	Q_UNUSED(errorCode); //TODO use
-	lastErrorLog = errorString.toUtf8();
+	normalExit = false;
+	lastErrorCode = errorCode;
+	lastErrorString = errorString;
 	emit q->checkUpdatesDone(false, true);
 }
 
 void UpdaterPrivate::appAboutToExit()
 {
-	if(runOnExit) {
-		if(!debugBackend->startUpdateTool(runArguments, adminAuth.data())) {
+	if(runOnExit && backend) {
+		if(!backend->startUpdateTool(runArguments, adminAuth.data())) {
 			qCWarning(logQtAutoUpdater) << "Unable to start" << toolPath
 										<< "with arguments" << runArguments
 										<< "as" << (adminAuth ? "admin/root" : "current user");

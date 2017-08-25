@@ -58,12 +58,15 @@ public:
 	//! Destroyes the updater and kills the update check (if running)
 	~Updater();
 
+	bool isValid() const;
 	//! Returns `true`, if the updater exited normally
 	bool exitedNormally() const;
 	//! Returns the mainetancetools error code of the last update
 	int errorCode() const;
+	QString errorString() const;
 	//! returns the error output (stderr) of the last update
-	QByteArray errorLog() const;
+	QT_DEPRECATED QByteArray errorLog() const;
+	QByteArray extendedErrorLog() const;
 
 	//! Returns `true` if the maintenancetool will be started on exit
 	bool willRunOnExit() const;

@@ -50,6 +50,7 @@ void QtIfwUpdaterBackend::startUpdateCheck()
 		process = nullptr;
 	}
 
+	lastErrorLog.clear();
 	process = new QProcess(this);
 	process->setProgram(toolInfo.absoluteFilePath());
 	process->setArguments({QStringLiteral("--checkupdates")});

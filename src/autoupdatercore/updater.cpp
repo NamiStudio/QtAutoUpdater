@@ -25,31 +25,49 @@ Updater::Updater(const QString &maintenanceToolPath, QObject *parent) :
 	d(new UpdaterPrivate(this))
 {
 	d->toolPath = maintenanceToolPath;
-	d->debugBackend = PluginLoader::instance()->getBackend("qtifw", maintenanceToolPath, this);
+	d->backend = PluginLoader::instance()->getBackend("qtifw", maintenanceToolPath, this);
 
-	if(d->debugBackend) {
-		connect(d->debugBackend, &UpdateBackend::updateCheckCompleted,
+	if(d->backend) {
+		connect(d->backend, &UpdateBackend::updateCheckCompleted,
 				d.data(), &UpdaterPrivate::updateCheckCompleted);
-		connect(d->debugBackend, &UpdateBackend::updateCheckFailed,
+		connect(d->backend, &UpdateBackend::updateCheckFailed,
 				d.data(), &UpdaterPrivate::updateCheckFailed);
 	}
 }
 
 Updater::~Updater() {}
 
+bool Updater::isValid() const
+{
+	return d->backend;
+}
+
 bool Updater::exitedNormally() const
 {
-	return true; //TODO ???
+	return d->normalExit;
 }
 
 int Updater::errorCode() const
 {
-	return 0; //TODO ???
+	return d->lastErrorCode;
+}
+
+QString Updater::errorString() const
+{
+	return d->lastErrorString;
 }
 
 QByteArray Updater::errorLog() const
 {
-	return d->lastErrorLog;
+	return extendedErrorLog();
+}
+
+QByteArray Updater::extendedErrorLog() const
+{
+	if(d->backend)
+		return d->backend->extendedErrorLog();
+	else
+		return QByteArray();
 }
 
 bool Updater::willRunOnExit() const
@@ -150,3 +168,7 @@ QDebug &operator<<(QDebug &debug, const Updater::UpdateInfo &info)
 					   .arg(info.size);
 	return debug;
 }
+
+
+
+// ------------- PRIVATE IMPLEMENTATION -------------

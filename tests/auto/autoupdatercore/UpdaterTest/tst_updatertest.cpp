@@ -62,7 +62,8 @@ void UpdaterTest::testUpdaterInitState()
 	//error state
 	QVERIFY(updater->exitedNormally());
 	QCOMPARE(updater->errorCode(), EXIT_SUCCESS);
-	QVERIFY(updater->errorLog().isEmpty());
+	QVERIFY(updater->errorString().isEmpty());
+	QVERIFY(updater->extendedErrorLog().isEmpty());
 
 	//properties
 #if defined(Q_OS_WIN32)
@@ -127,7 +128,7 @@ void UpdaterTest::testUpdateCheck()
 	QVERIFY(checkSpy->wait(300000));
 
 	//show error log before continuing checking
-	QByteArray log = updater->errorLog();
+	QByteArray log = updater->extendedErrorLog();//TODO error string
 	if(!log.isEmpty())
 		qWarning() << "Error log:" << log;
 
