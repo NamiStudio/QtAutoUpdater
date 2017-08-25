@@ -9,8 +9,6 @@
 #include <QtCore/QLoggingCategory>
 #include <QtCore/QException>
 
-#include <exception>
-
 namespace QtAutoUpdater
 {
 

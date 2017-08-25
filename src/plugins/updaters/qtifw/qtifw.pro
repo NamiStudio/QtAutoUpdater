@@ -1,14 +1,14 @@
 TARGET  = qtifw
 
-QT += autoupdatercore
+QT += autoupdatercore_private
 QT -= gui
 
 HEADERS += \
 		qtifwupdaterplugin.h \
-    qtifwupdaterbackend.h
+	qtifwupdaterbackend.h
 SOURCES += \
 		qtifwupdaterplugin.cpp \
-    qtifwupdaterbackend.cpp
+	qtifwupdaterbackend.cpp
 
 DISTFILES += qtifw.json
 

@@ -8,8 +8,12 @@ QtIfwUpdaterPlugin::QtIfwUpdaterPlugin(QObject *parent) :
 
 UpdateBackend *QtIfwUpdaterPlugin::createInstance(const QByteArray &type, const QString &path, QObject *parent)
 {
-	if(type == "qtifw")
-		return new QtIfwUpdaterBackend(path, parent);
-	else
+	if(type == "qtifw") {
+		QFileInfo fileInfo = QtIfwUpdaterBackend::toSystemExe(path);
+		if(fileInfo.exists())
+			return new QtIfwUpdaterBackend(fileInfo, parent);
+		else
+			return nullptr;
+	} else
 		return nullptr;
 }

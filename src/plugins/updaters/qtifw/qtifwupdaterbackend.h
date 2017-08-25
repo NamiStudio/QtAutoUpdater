@@ -3,6 +3,10 @@
 
 #include "QtAutoUpdaterCore/updatebackend.h"
 
+#include <QtCore/QException>
+#include <QtCore/QFileInfo>
+#include <QtCore/QProcess>
+
 namespace QtAutoUpdater {
 
 class QtIfwUpdaterBackend : public UpdateBackend
@@ -10,16 +14,43 @@ class QtIfwUpdaterBackend : public UpdateBackend
 	Q_OBJECT
 
 public:
-	explicit QtIfwUpdaterBackend(const QString &maintenanceToolPath, QObject *parent = nullptr);
+	class NoUpdatesXmlException : public QException {
+	public:
+		const char *what() const noexcept override;
 
-	void startUpdateTool(const QVariantList &arguments) override;
+		void raise() const override;
+		QException *clone() const override;
+	};
 
-public slots:
+	class InvalidXmlException : public QException {
+	public:
+		const char *what() const noexcept override;
+
+		void raise() const override;
+		QException *clone() const override;
+	};
+
+	explicit QtIfwUpdaterBackend(const QFileInfo &toolInfo, QObject *parent = nullptr);
+
+	void startUpdateTool(const QVariantList &arguments, AdminAuthoriser *authoriser) override;
+	QByteArray extendedErrorLog() const override;
+
+	static const QString toSystemExe(QString basePath);
+
+public Q_SLOTS:
 	void startUpdateCheck() override;
 	void cancelUpdateCheck(int maxDelay) override;
 
+private Q_SLOTS:
+	void updaterReady(int exitCode, QProcess::ExitStatus exitStatus);
+	void updaterError(QProcess::ProcessError error);
+
 private:
-	const QString maintenanceToolPath;
+	const QFileInfo &toolInfo;
+	QProcess *process;
+	QByteArray lastErrorLog;
+
+	static QList<Updater::UpdateInfo> parseResult(const QByteArray &output);
 };
 
 }

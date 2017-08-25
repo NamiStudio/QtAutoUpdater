@@ -16,7 +16,9 @@ class Q_AUTOUPDATERCORE_EXPORT UpdateBackend : public QObject
 public:
 	explicit UpdateBackend(QObject *parent = nullptr);
 
-	virtual void startUpdateTool(const QVariantList &arguments) = 0;
+	virtual void startUpdateTool(const QVariantList &arguments, AdminAuthoriser *authoriser) = 0;
+
+	virtual QByteArray extendedErrorLog() const;
 
 public Q_SLOTS:
 	virtual void startUpdateCheck() = 0;
