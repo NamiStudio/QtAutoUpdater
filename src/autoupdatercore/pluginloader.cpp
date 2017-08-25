@@ -64,7 +64,8 @@ UpdateBackend *PluginLoader::getBackend(const QByteArray &type, const QString &p
 
 	auto instance = qobject_cast<UpdaterPlugin*>(loader->instance());
 	if(!instance) {
-		qCCritical(logQtAutoUpdater) << "Unable to load plugin for updater type" << type;
+		qCCritical(logQtAutoUpdater) << "Unable to load plugin for updater type" << type
+									 << "with error" << loader->errorString();
 		return nullptr;
 	}
 
