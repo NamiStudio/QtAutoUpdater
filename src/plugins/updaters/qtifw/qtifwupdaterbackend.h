@@ -32,7 +32,7 @@ public:
 
 	explicit QtIfwUpdaterBackend(const QFileInfo &toolInfo, QObject *parent = nullptr);
 
-	void startUpdateTool(const QVariantList &arguments, AdminAuthoriser *authoriser) override;
+	bool startUpdateTool(const QStringList &arguments, AdminAuthoriser *authoriser) override;
 	QByteArray extendedErrorLog() const override;
 
 	static const QString toSystemExe(QString basePath);

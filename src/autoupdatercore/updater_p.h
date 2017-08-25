@@ -4,6 +4,7 @@
 #include "qtautoupdatercore_global.h"
 #include "updater.h"
 #include "simplescheduler_p.h"
+#include "updatebackend.h"
 
 #include <QtCore/QProcess>
 #include <QtCore/QLoggingCategory>
@@ -32,15 +33,13 @@ public:
 	};
 
 	Updater *q;
+	UpdateBackend *debugBackend;
 
 	QString toolPath;
 	QList<Updater::UpdateInfo> updateInfos;
-	bool normalExit;
-	int lastErrorCode;
 	QByteArray lastErrorLog;
 
 	bool running;
-	QProcess *mainProcess;
 
 	SimpleScheduler *scheduler;
 
@@ -51,15 +50,12 @@ public:
 	UpdaterPrivate(Updater *q_ptr);
 	~UpdaterPrivate();
 
-	static const QString toSystemExe(QString basePath);
-
 	bool startUpdateCheck();
 	void stopUpdateCheck(int delay, bool async);
-	QList<Updater::UpdateInfo> parseResult(const QByteArray &output);
 
 public Q_SLOTS:
-	void updaterReady(int exitCode, QProcess::ExitStatus exitStatus);
-	void updaterError(QProcess::ProcessError error);
+	void updateCheckCompleted(const QList<Updater::UpdateInfo> &updates);
+	void updateCheckFailed(const QString &errorString, int errorCode);
 
 	void appAboutToExit();
 };

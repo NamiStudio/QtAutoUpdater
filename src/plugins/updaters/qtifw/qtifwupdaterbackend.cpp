@@ -13,23 +13,12 @@ QtIfwUpdaterBackend::QtIfwUpdaterBackend(const QFileInfo &toolInfo, QObject *par
 	lastErrorLog()
 {}
 
-void QtIfwUpdaterBackend::startUpdateTool(const QVariantList &arguments, AdminAuthoriser *authoriser)
+bool QtIfwUpdaterBackend::startUpdateTool(const QStringList &arguments, AdminAuthoriser *authoriser)
 {
-	auto ok = false;
-	QStringList runArguments;
-	foreach(auto arg, arguments)
-		runArguments.append(arg.toString());
-
 	if(authoriser && !authoriser->hasAdminRights())
-		ok = authoriser->executeAsAdmin(toolInfo.absoluteFilePath(), runArguments);
+		return authoriser->executeAsAdmin(toolInfo.absoluteFilePath(), arguments);
 	else
-		ok = QProcess::startDetached(toolInfo.absoluteFilePath(), runArguments);
-
-	if(!ok) {
-		qCWarning(logQtAutoUpdater) << "Unable to start" << process->program()
-									<< "with arguments" << runArguments
-									<< "as" << (authoriser ? "admin/root" : "current user");
-	}
+		return QProcess::startDetached(toolInfo.absoluteFilePath(), arguments);
 }
 
 QByteArray QtIfwUpdaterBackend::extendedErrorLog() const

@@ -23,19 +23,19 @@ Updater::Updater(const QString &maintenanceToolPath, QObject *parent) :
 	QObject(parent),
 	d(new UpdaterPrivate(this))
 {
-	d->toolPath = UpdaterPrivate::toSystemExe(maintenanceToolPath);
+	d->toolPath = maintenanceToolPath;
 }
 
 Updater::~Updater() {}
 
 bool Updater::exitedNormally() const
 {
-	return d->normalExit;
+	return true; //TODO ???
 }
 
 int Updater::errorCode() const
 {
-	return d->lastErrorCode;
+	return 0; //TODO ???
 }
 
 QByteArray Updater::errorLog() const
