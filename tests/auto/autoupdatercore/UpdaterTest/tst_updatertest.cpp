@@ -44,6 +44,9 @@ void UpdaterTest::initTestCase()
 	Q_ASSERT(qgetenv("LD_PRELOAD").contains("Qt5AutoUpdaterCore"));
 #endif
 
+	qputenv("QTAUTOUPDATERCORE_PLUGIN_OVERWRITE",
+			OUTDIR + QByteArray("../../../../plugins/updaters/"));
+
 	controller = new InstallerController(this);
 	controller->createRepository();
 	controller->createInstaller();

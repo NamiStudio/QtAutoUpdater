@@ -46,7 +46,7 @@ private Q_SLOTS:
 	void updaterError(QProcess::ProcessError error);
 
 private:
-	const QFileInfo &toolInfo;
+	const QFileInfo toolInfo;
 	QProcess *process;
 	QByteArray lastErrorLog;
 

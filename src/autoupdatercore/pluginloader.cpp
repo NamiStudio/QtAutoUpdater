@@ -16,10 +16,16 @@ PluginLoader::PluginLoader() :
 	QObject(nullptr),
 	plugins()
 {
-	//find all available plugins
-	QDir pluginDir = QLibraryInfo::location(QLibraryInfo::PluginsPath);
-	if(!pluginDir.cd(QStringLiteral("updater")))
-		return;
+	//find the plugin dir
+	QDir pluginDir;
+	auto path = qgetenv("QTAUTOUPDATERCORE_PLUGIN_OVERWRITE");
+	if(!path.isEmpty())
+		pluginDir = QString::fromUtf8(path);
+	else {
+		QDir pluginDir = QLibraryInfo::location(QLibraryInfo::PluginsPath);
+		if(!pluginDir.cd(QStringLiteral("updater")))
+			return;
+	}
 
 	foreach(auto info, pluginDir.entryInfoList(QDir::Files | QDir::Readable | QDir::NoDotAndDotDot)) {
 		auto plugin = new QPluginLoader(info.absoluteFilePath(), this);

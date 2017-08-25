@@ -26,6 +26,13 @@ Updater::Updater(const QString &maintenanceToolPath, QObject *parent) :
 {
 	d->toolPath = maintenanceToolPath;
 	d->debugBackend = PluginLoader::instance()->getBackend("qtifw", maintenanceToolPath, this);
+
+	if(d->debugBackend) {
+		connect(d->debugBackend, &UpdateBackend::updateCheckCompleted,
+				d.data(), &UpdaterPrivate::updateCheckCompleted);
+		connect(d->debugBackend, &UpdateBackend::updateCheckFailed,
+				d.data(), &UpdaterPrivate::updateCheckFailed);
+	}
 }
 
 Updater::~Updater() {}
