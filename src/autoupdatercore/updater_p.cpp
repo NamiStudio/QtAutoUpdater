@@ -18,7 +18,6 @@ UpdaterPrivate::UpdaterPrivate(Updater *q_ptr) :
 	toolPath(),
 	updateInfos(),
 	normalExit(true),
-	lastErrorCode(0),
 	lastErrorString(),
 	running(false),
 	scheduler(new SimpleScheduler(this)),
@@ -49,7 +48,6 @@ bool UpdaterPrivate::startUpdateCheck()
 	else {
 		updateInfos.clear();
 		normalExit = true;
-		lastErrorCode = 0;
 		lastErrorString.clear();
 
 		running = true;
@@ -72,7 +70,6 @@ void UpdaterPrivate::updateCheckCompleted(const QList<Updater::UpdateInfo> &upda
 {
 	running = false;
 	normalExit = true;
-	lastErrorCode = 0;
 	lastErrorString.clear();
 	emit q->runningChanged(false);
 
@@ -82,10 +79,9 @@ void UpdaterPrivate::updateCheckCompleted(const QList<Updater::UpdateInfo> &upda
 	emit q->checkUpdatesDone(!updateInfos.isEmpty(), false);
 }
 
-void UpdaterPrivate::updateCheckFailed(const QString &errorString, int errorCode)
+void UpdaterPrivate::updateCheckFailed(const QString &errorString)
 {
 	normalExit = false;
-	lastErrorCode = errorCode;
 	lastErrorString = errorString;
 	emit q->checkUpdatesDone(false, true);
 }

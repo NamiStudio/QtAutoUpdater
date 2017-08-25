@@ -38,7 +38,6 @@ public:
 	QString toolPath;
 	QList<Updater::UpdateInfo> updateInfos;
 	bool normalExit;
-	int lastErrorCode;
 	QString lastErrorString;
 
 	bool running;
@@ -57,7 +56,7 @@ public:
 
 public Q_SLOTS:
 	void updateCheckCompleted(const QList<Updater::UpdateInfo> &updates);
-	void updateCheckFailed(const QString &errorString, int errorCode);
+	void updateCheckFailed(const QString &errorString);
 
 	void appAboutToExit();
 };

@@ -26,7 +26,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
 	void updateCheckCompleted(const QList<Updater::UpdateInfo> &updates);
-	void updateCheckFailed(const QString &errorString, int errorCode = 0);
+	void updateCheckFailed(const QString &errorString);
 };
 
 }

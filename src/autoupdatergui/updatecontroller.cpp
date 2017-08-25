@@ -266,9 +266,7 @@ void UpdateController::checkUpdatesDone(bool hasUpdates, bool hasError)
 			}
 		} else {
 			if(hasError) {
-				qCWarning(logQtAutoUpdater) << "maintenancetool process finished with exit code"
-											<< d->mainUpdater->errorCode()
-											<< "and error string:"
+				qCWarning(logQtAutoUpdater) << "maintenancetool process finished with error string:"
 											<< d->mainUpdater->errorString();
 			}
 

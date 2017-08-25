@@ -47,11 +47,6 @@ bool Updater::exitedNormally() const
 	return d->normalExit;
 }
 
-int Updater::errorCode() const
-{
-	return d->lastErrorCode;
-}
-
 QString Updater::errorString() const
 {
 	return d->lastErrorString;

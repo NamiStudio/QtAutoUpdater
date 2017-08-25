@@ -80,6 +80,7 @@ void QtIfwUpdaterBackend::cancelUpdateCheck(int maxDelay)
 
 void QtIfwUpdaterBackend::updaterReady(int exitCode, QProcess::ExitStatus exitStatus)
 {
+	Q_UNUSED(exitCode); //does not provide any useful information
 	if(!process)
 		return;
 
@@ -95,7 +96,7 @@ void QtIfwUpdaterBackend::updaterReady(int exitCode, QProcess::ExitStatus exitSt
 		} catch (NoUpdatesXmlException &) {
 			emit updateCheckCompleted({});
 		} catch (InvalidXmlException &e) {
-			emit updateCheckFailed(QString::fromUtf8(e.what()), exitCode);
+			emit updateCheckFailed(QString::fromUtf8(e.what()));
 		}
 	} else
 		updaterError(QProcess::Crashed);
@@ -103,6 +104,7 @@ void QtIfwUpdaterBackend::updaterReady(int exitCode, QProcess::ExitStatus exitSt
 
 void QtIfwUpdaterBackend::updaterError(QProcess::ProcessError error)
 {
+	Q_UNUSED(error); //use error string directly
 	if(!process)
 		return;
 
@@ -110,7 +112,7 @@ void QtIfwUpdaterBackend::updaterError(QProcess::ProcessError error)
 	process->deleteLater();
 	process = nullptr;
 
-	emit updateCheckFailed(errorString, error);
+	emit updateCheckFailed(errorString);
 }
 
 QList<Updater::UpdateInfo> QtIfwUpdaterBackend::parseResult(const QByteArray &output)

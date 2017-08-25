@@ -61,8 +61,7 @@ public:
 	bool isValid() const;
 	//! Returns `true`, if the updater exited normally
 	bool exitedNormally() const;
-	//! Returns the mainetancetools error code of the last update
-	int errorCode() const;
+	//! Returns the mainetancetools error string of the last update
 	QString errorString() const;
 	//! returns the error output (stderr) of the last update
 	QT_DEPRECATED QByteArray errorLog() const;
