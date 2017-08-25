@@ -23,12 +23,19 @@ class Q_AUTOUPDATERCORE_EXPORT Updater : public QObject
 
 	//! Holds the path of the attached maintenancetool
 	Q_PROPERTY(QString maintenanceToolPath READ maintenanceToolPath CONSTANT FINAL)
-	//! Specifies whether the updater is currently checking for updates or not
-	Q_PROPERTY(bool running READ isRunning NOTIFY runningChanged)
+	Q_PROPERTY(UpdaterState updaterState READ updaterState NOTIFY updaterStateChanged)
 	//! Holds extended information about the last update check
 	Q_PROPERTY(QList<UpdateInfo> updateInfo READ updateInfo NOTIFY updateInfoChanged)
 
 public:
+	enum UpdaterState {
+		NoUpdates,
+		Running,
+		HasUpdates,
+		HasError
+	};
+	Q_ENUM(UpdaterState)
+
 	//! Provides information about updates for components
 	struct Q_AUTOUPDATERCORE_EXPORT UpdateInfo
 	{
@@ -55,16 +62,14 @@ public:
 	explicit Updater(QObject *parent = nullptr);
 	//! Constructer with an explicitly set path
 	explicit Updater(const QString &maintenanceToolPath, QObject *parent = nullptr);
+	explicit Updater(const QString &maintenanceToolPath, const QByteArray &type, QObject *parent = nullptr);
 	//! Destroyes the updater and kills the update check (if running)
 	~Updater();
 
 	bool isValid() const;
-	//! Returns `true`, if the updater exited normally
-	bool exitedNormally() const;
+	UpdaterState updaterState() const;
 	//! Returns the mainetancetools error string of the last update
 	QString errorString() const;
-	//! returns the error output (stderr) of the last update
-	QT_DEPRECATED QByteArray errorLog() const;
 	QByteArray extendedErrorLog() const;
 
 	//! Returns `true` if the maintenancetool will be started on exit
@@ -72,16 +77,18 @@ public:
 
 	//! readAcFn{Updater::maintenanceToolPath}
 	QString maintenanceToolPath() const;
-	//! readAcFn{Updater::running}
-	bool isRunning() const;
 	//! readAcFn{Updater::updateInfo}
 	QList<UpdateInfo> updateInfo() const;
+
+	QT_DEPRECATED bool exitedNormally() const;
+	QT_DEPRECATED QByteArray errorLog() const;
+	QT_DEPRECATED bool isRunning() const;
 
 public Q_SLOTS:
 	//! Starts checking for updates
 	bool checkForUpdates();
 	//! Aborts checking for updates
-	void abortUpdateCheck(int maxDelay = 5000, bool async = false);
+	void abortUpdateCheck(int maxDelay = 5000);
 
 	//! Schedules an update after a specific delay, optionally repeated
 	int scheduleUpdate(int delaySeconds, bool repeated = false);
@@ -98,13 +105,13 @@ public Q_SLOTS:
 	void cancelExitRun();
 
 Q_SIGNALS:
-	//! Will be emitted as soon as the updater finished checking for updates
-	void checkUpdatesDone(bool hasUpdates, bool hasError);
-
-	//! notifyAcFn{Updater::running}
-	void runningChanged(bool running);
+	void updateCheckDone(bool hasUpdates);
+	void updaterStateChanged(UpdaterState updaterState);
 	//! notifyAcFn{Updater::updateInfo}
 	void updateInfoChanged(QList<QtAutoUpdater::Updater::UpdateInfo> updateInfo);
+
+	QT_DEPRECATED void checkUpdatesDone(bool hasUpdates, bool hasError);
+	QT_DEPRECATED void runningChanged(bool running);
 
 private:
 	QScopedPointer<UpdaterPrivate> d;

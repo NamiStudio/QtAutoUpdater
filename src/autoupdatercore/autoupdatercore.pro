@@ -14,7 +14,6 @@ HEADERS += \
 
 SOURCES += \
     simplescheduler.cpp \
-    updater_p.cpp \
     updater.cpp \
     updaterplugin.cpp \
     updatebackend.cpp \

@@ -2,9 +2,12 @@
 #include "updater_p.h"
 #include "pluginloader_p.h"
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
 using namespace QtAutoUpdater;
+
+Q_LOGGING_CATEGORY(logQtAutoUpdater, "QtAutoUpdater")
 
 #ifdef Q_OS_OSX
 #define DEFAULT_TOOL_PATH QStringLiteral("../../maintenancetool")
@@ -17,15 +20,19 @@ const QStringList Updater::PassiveUpdateArguments = {QStringLiteral("--updater")
 const QStringList Updater::HiddenUpdateArguments = {QStringLiteral("--silentUpdate")};
 
 Updater::Updater(QObject *parent) :
-	Updater(DEFAULT_TOOL_PATH, parent)
+	Updater(DEFAULT_TOOL_PATH, "qtifw", parent)
 {}
 
 Updater::Updater(const QString &maintenanceToolPath, QObject *parent) :
+	Updater(maintenanceToolPath, "qtifw", parent)
+{}
+
+Updater::Updater(const QString &maintenanceToolPath, const QByteArray &type, QObject *parent) :
 	QObject(parent),
 	d(new UpdaterPrivate(this))
 {
 	d->toolPath = maintenanceToolPath;
-	d->backend = PluginLoader::instance()->getBackend("qtifw", maintenanceToolPath, this);
+	d->backend = PluginLoader::instance()->getBackend(type, maintenanceToolPath, this);
 
 	if(d->backend) {
 		connect(d->backend, &UpdateBackend::updateCheckCompleted,
@@ -33,28 +40,47 @@ Updater::Updater(const QString &maintenanceToolPath, QObject *parent) :
 		connect(d->backend, &UpdateBackend::updateCheckFailed,
 				d.data(), &UpdaterPrivate::updateCheckFailed);
 	}
+
+	connect(qApp, &QCoreApplication::aboutToQuit,
+			d.data(), &UpdaterPrivate::appAboutToExit,
+			Qt::DirectConnection);
+	connect(d->scheduler, &SimpleScheduler::scheduleTriggered,
+			this, &Updater::checkForUpdates);
+
+	//MAJOR remove deprecated
+	QT_WARNING_PUSH
+	QT_WARNING_DISABLE_DEPRECATED
+	connect(this, &Updater::updateCheckDone, this, [this](bool hasUpdates){
+		emit checkUpdatesDone(hasUpdates, updaterState() == HasError);
+	});
+	connect(this, &Updater::updaterStateChanged, this, [this](UpdaterState state) {
+		emit runningChanged(state == Running);
+	});
+	QT_WARNING_POP
 }
 
-Updater::~Updater() {}
+Updater::~Updater()
+{
+	if(d->runOnExit)
+		qCWarning(logQtAutoUpdater) << "Updater destroyed with run on exit active before the application quit";
+
+	if(d->state == Running && d->backend)
+		d->backend->cancelUpdateCheck(0);
+}
 
 bool Updater::isValid() const
 {
 	return d->backend;
 }
 
-bool Updater::exitedNormally() const
+Updater::UpdaterState Updater::updaterState() const
 {
-	return d->normalExit;
+	return d->state;
 }
 
 QString Updater::errorString() const
 {
 	return d->lastErrorString;
-}
-
-QByteArray Updater::errorLog() const
-{
-	return extendedErrorLog();
 }
 
 QByteArray Updater::extendedErrorLog() const
@@ -75,24 +101,48 @@ QString Updater::maintenanceToolPath() const
 	return d->toolPath;
 }
 
-bool Updater::isRunning() const
-{
-	return d->running;
-}
-
 QList<Updater::UpdateInfo> Updater::updateInfo() const
 {
 	return d->updateInfos;
 }
 
-bool Updater::checkForUpdates()
+bool Updater::exitedNormally() const
 {
-	return d->startUpdateCheck();
+	return updaterState() != HasError;
 }
 
-void Updater::abortUpdateCheck(int maxDelay, bool async)
+QByteArray Updater::errorLog() const
 {
-	d->stopUpdateCheck(maxDelay, async);
+	return extendedErrorLog();
+}
+
+bool Updater::isRunning() const
+{
+	return d->state == Running;
+}
+
+bool Updater::checkForUpdates()
+{
+	if(d->state == Running || !d->backend)
+		return false;
+	else {
+		d->updateInfos.clear();
+		d->state = Running;
+		d->lastErrorString.clear();
+
+		emit updaterStateChanged(d->state);
+		emit updateInfoChanged(d->updateInfos);
+
+		d->backend->startUpdateCheck();
+
+		return true;
+	}
+}
+
+void Updater::abortUpdateCheck(int maxDelay)
+{
+	if(d->backend && d->state == Running)
+		d->backend->cancelUpdateCheck(maxDelay);
 }
 
 int Updater::scheduleUpdate(int delaySeconds, bool repeated)
@@ -164,6 +214,50 @@ QDebug &operator<<(QDebug &debug, const Updater::UpdateInfo &info)
 	return debug;
 }
 
-
-
 // ------------- PRIVATE IMPLEMENTATION -------------
+
+UpdaterPrivate::UpdaterPrivate(Updater *q_ptr) :
+	QObject(nullptr),
+	q(q_ptr),
+	backend(nullptr),
+	toolPath(),
+	state(Updater::NoUpdates),
+	updateInfos(),
+	lastErrorString(),
+	scheduler(new SimpleScheduler(this)),
+	runOnExit(false),
+	runArguments(),
+	adminAuth(nullptr)
+{}
+
+void UpdaterPrivate::updateCheckCompleted(const QList<Updater::UpdateInfo> &updates)
+{
+	updateInfos = updates;
+	state = updates.isEmpty() ? Updater::NoUpdates : Updater::HasUpdates;
+	lastErrorString.clear();
+	emit q->updaterStateChanged(state);
+	if(!updateInfos.isEmpty())
+		emit q->updateInfoChanged(updateInfos);
+	emit q->updateCheckDone(state == Updater::HasUpdates);
+}
+
+void UpdaterPrivate::updateCheckFailed(const QString &errorString)
+{
+	state = Updater::HasError;
+	lastErrorString = errorString;
+	emit q->updaterStateChanged(state);
+	emit q->updateCheckDone(false);
+}
+
+void UpdaterPrivate::appAboutToExit()
+{
+	if(runOnExit && backend) {
+		if(!backend->startUpdateTool(runArguments, adminAuth.data())) {
+			qCWarning(logQtAutoUpdater) << "Unable to start" << toolPath
+										<< "with arguments" << runArguments
+										<< "as" << (adminAuth ? "admin/root" : "current user");
+		}
+
+		runOnExit = false;//prevent warning
+	}
+}

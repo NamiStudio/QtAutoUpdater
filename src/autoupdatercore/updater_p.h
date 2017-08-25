@@ -16,31 +16,13 @@ namespace QtAutoUpdater
 class Q_AUTOUPDATERCORE_EXPORT UpdaterPrivate : public QObject
 {
 public:
-	class Q_AUTOUPDATERCORE_EXPORT NoUpdatesXmlException : public QException {
-	public:
-		const char *what() const noexcept override;
-
-		void raise() const override;
-		QException *clone() const override;
-	};
-
-	class Q_AUTOUPDATERCORE_EXPORT InvalidXmlException : public QException {
-	public:
-		const char *what() const noexcept override;
-
-		void raise() const override;
-		QException *clone() const override;
-	};
-
 	Updater *q;
 	UpdateBackend *backend;
 
 	QString toolPath;
+	Updater::UpdaterState state;
 	QList<Updater::UpdateInfo> updateInfos;
-	bool normalExit;
 	QString lastErrorString;
-
-	bool running;
 
 	SimpleScheduler *scheduler;
 
@@ -49,10 +31,6 @@ public:
 	QScopedPointer<AdminAuthoriser> adminAuth;
 
 	UpdaterPrivate(Updater *q_ptr);
-	~UpdaterPrivate();
-
-	bool startUpdateCheck();
-	void stopUpdateCheck(int delay, bool async);
 
 public Q_SLOTS:
 	void updateCheckCompleted(const QList<Updater::UpdateInfo> &updates);

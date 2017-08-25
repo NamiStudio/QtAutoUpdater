@@ -110,7 +110,7 @@ Q_SIGNALS:
 	void runAsAdminChanged(bool runAsAdmin);
 
 private Q_SLOTS:
-	void checkUpdatesDone(bool hasUpdates, bool hasError);
+	void updateCheckDone();
 	void timerTriggered(const QVariant &parameter);
 
 private:

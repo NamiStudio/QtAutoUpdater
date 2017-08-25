@@ -103,12 +103,27 @@ void UpdateButton::changeUpdaterState(bool isRunning)
 	}
 }
 
-void UpdateButton::updatesReady(bool hasUpdate, bool)
+void UpdateButton::updatesReady(Updater::UpdaterState result)
 {
 	changeUpdaterState(false);
 	if(d->showResult) {
-		d->ui->checkButton->setEnabled(!hasUpdate);
-		d->ui->statusLabel->setText(hasUpdate ? tr("New Update!") : tr("No new updates available"));
+		switch (result) {
+		case Updater::NoUpdates:
+			d->ui->checkButton->setEnabled(true);
+			d->ui->statusLabel->setText(tr("No new updates available"));
+			break;
+		case Updater::HasUpdates:
+			d->ui->checkButton->setEnabled(false);
+			d->ui->statusLabel->setText(tr("New Update!"));
+			break;
+		case Updater::HasError:
+			d->ui->checkButton->setEnabled(true);
+			d->ui->statusLabel->setText(tr("Update check failed"));
+			break;
+		default:
+			Q_UNREACHABLE();
+			break;
+		}
 		d->ui->statusLabel->setVisible(true);
 	}
 }
@@ -151,7 +166,7 @@ void UpdateButtonPrivate::updateController(UpdateController *controller)
 	if(controller) {
 		QObject::connect(this->controller.data(), &UpdateController::runningChanged,
 						 q, &UpdateButton::changeUpdaterState);
-		QObject::connect(this->controller->updater(), &Updater::checkUpdatesDone,
+		QObject::connect(this->controller->updater(), &Updater::updaterStateChanged,
 						 q, &UpdateButton::updatesReady);
 		QObject::connect(this->controller.data(), &UpdateController::destroyed,
 						 q, &UpdateButton::controllerDestroyed);

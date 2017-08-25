@@ -30,9 +30,9 @@ public:
 	~ProgressDialog();
 
 	template <class Class>
-	void open(Class *object, void(Class::* member)(int,bool)) {
+	void open(Class *object, void(Class::* member)(int)) {
 		connect(this, &ProgressDialog::canceled, object, [=](){
-			(object->*member)(3000, true);
+			(object->*member)(3000);
 		});
 		show();
 	}

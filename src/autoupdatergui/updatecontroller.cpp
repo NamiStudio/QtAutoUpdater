@@ -170,11 +170,11 @@ bool UpdateController::start(DisplayLevel displayLevel)
 
 bool UpdateController::cancelUpdate(int maxDelay)
 {
-	if(d->mainUpdater->isRunning()) {
+	if(d->mainUpdater->updaterState() == Updater::Running) {
 		d->wasCanceled = true;
 		if(d->checkUpdatesProgress)
 			d->checkUpdatesProgress->setCanceled();
-		d->mainUpdater->abortUpdateCheck(maxDelay, true);
+		d->mainUpdater->abortUpdateCheck(maxDelay);
 		return true;
 	} else
 		return false;
@@ -199,14 +199,18 @@ void UpdateController::cancelScheduledUpdate(int taskId)
 	d->scheduler->cancelSchedule(taskId);
 }
 
-void UpdateController::checkUpdatesDone(bool hasUpdates, bool hasError)
+void UpdateController::updateCheckDone()
 {
+	auto state = d->mainUpdater->updaterState();
+	auto hasUpdates = state == Updater::HasUpdates;
+	auto hasError = state == Updater::HasError;
+
 	if(d->displayLevel >= ExtendedInfoLevel) {
 		auto iconType = QMessageBox::NoIcon;
 		if(hasUpdates)
 			iconType = QMessageBox::Information;
 		else {
-			if(d->wasCanceled || !d->mainUpdater->exitedNormally())
+			if(d->wasCanceled || hasError)
 				iconType = QMessageBox::Warning;
 			else
 				iconType = QMessageBox::Critical;
@@ -271,14 +275,14 @@ void UpdateController::checkUpdatesDone(bool hasUpdates, bool hasError)
 			}
 
 			if(d->displayLevel >= ExtendedInfoLevel) {
-				if(d->mainUpdater->exitedNormally()) {
+				if(hasError) {
+					DialogMaster::warningT(d->window,
+										   tr("Check for Updates"),
+										   tr("Failed to check for updates!"));
+				} else {
 					DialogMaster::criticalT(d->window,
 											tr("Check for Updates"),
 											tr("No new updates available!"));
-				} else {
-					DialogMaster::warningT(d->window,
-										   tr("Check for Updates"),
-										   tr("The update process crashed!"));
 				}
 			}
 		}
@@ -319,8 +323,8 @@ UpdateControllerPrivate::UpdateControllerPrivate(UpdateController *q_ptr, const 
 	wasCanceled(false),
 	scheduler(new SimpleScheduler(q_ptr))
 {
-	QObject::connect(mainUpdater, &Updater::checkUpdatesDone,
-					 q, &UpdateController::checkUpdatesDone,
+	QObject::connect(mainUpdater, &Updater::updateCheckDone,
+					 q, &UpdateController::updateCheckDone,
 					 Qt::QueuedConnection);
 	QObject::connect(scheduler, &SimpleScheduler::scheduleTriggered,
 					 q, &UpdateController::timerTriggered);
