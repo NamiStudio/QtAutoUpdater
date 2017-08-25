@@ -9,14 +9,16 @@ HEADERS += \
     simplescheduler_p.h \
     qtautoupdatercore_global.h \
     updaterplugin.h \
-    updatebackend.h
+    updatebackend.h \
+    pluginloader_p.h
 
 SOURCES += \
     simplescheduler.cpp \
     updater_p.cpp \
     updater.cpp \
     updaterplugin.cpp \
-    updatebackend.cpp
+    updatebackend.cpp \
+    pluginloader.cpp
 
 load(qt_module)
 

@@ -1,5 +1,6 @@
 #include "updater.h"
 #include "updater_p.h"
+#include "pluginloader_p.h"
 
 #include <QtCore/QDebug>
 
@@ -24,6 +25,7 @@ Updater::Updater(const QString &maintenanceToolPath, QObject *parent) :
 	d(new UpdaterPrivate(this))
 {
 	d->toolPath = maintenanceToolPath;
+	d->debugBackend = PluginLoader::instance()->getBackend("qtifw", maintenanceToolPath, this);
 }
 
 Updater::~Updater() {}
