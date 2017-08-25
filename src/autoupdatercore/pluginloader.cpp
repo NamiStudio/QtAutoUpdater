@@ -30,8 +30,19 @@ PluginLoader::PluginLoader() :
 	foreach(auto info, pluginDir.entryInfoList(QDir::Files | QDir::Readable | QDir::NoDotAndDotDot)) {
 		auto plugin = new QPluginLoader(info.absoluteFilePath(), this);
 		auto metaData = plugin->metaData();
+
 		if(metaData[QStringLiteral("IID")].toString() != QStringLiteral(UpdaterPlugin_iid)) {
 			qCWarning(logQtAutoUpdater) << "File" << info.absoluteFilePath() << "is not an updater plugin";
+			plugin->deleteLater();
+			continue;
+		}
+
+		//skip non-matching types
+#ifdef QT_NO_DEBUG
+		if(metaData[QStringLiteral("debug")].toBool()) {
+#else
+		if(!metaData[QStringLiteral("debug")].toBool()) {
+#endif
 			plugin->deleteLater();
 			continue;
 		}

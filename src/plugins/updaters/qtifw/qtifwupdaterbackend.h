@@ -7,9 +7,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QProcess>
 
-namespace QtAutoUpdater {
-
-class QtIfwUpdaterBackend : public UpdateBackend
+class QtIfwUpdaterBackend : public QtAutoUpdater::UpdateBackend
 {
 	Q_OBJECT
 
@@ -32,7 +30,7 @@ public:
 
 	explicit QtIfwUpdaterBackend(const QFileInfo &toolInfo, QObject *parent = nullptr);
 
-	bool startUpdateTool(const QStringList &arguments, AdminAuthoriser *authoriser) override;
+	bool startUpdateTool(const QStringList &arguments, QtAutoUpdater::AdminAuthoriser *authoriser) override;
 	QByteArray extendedErrorLog() const override;
 
 	static const QString toSystemExe(QString basePath);
@@ -50,9 +48,7 @@ private:
 	QProcess *process;
 	QByteArray lastErrorLog;
 
-	static QList<Updater::UpdateInfo> parseResult(const QByteArray &output);
+	static QList<QtAutoUpdater::Updater::UpdateInfo> parseResult(const QByteArray &output);
 };
-
-}
 
 #endif // QTAUTOUPDATER_QTIFWUPDATERBACKEND_H

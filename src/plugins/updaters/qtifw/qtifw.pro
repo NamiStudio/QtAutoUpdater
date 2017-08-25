@@ -14,5 +14,5 @@ DISTFILES += qtifw.json
 
 PLUGIN_TYPE = updaters
 PLUGIN_EXTENDS = autoupdatercore
-PLUGIN_CLASS_NAME = QtAutoUpdater::QtIfwUpdaterPlugin
+PLUGIN_CLASS_NAME = QtIfwUpdaterPlugin
 load(qt_plugin)

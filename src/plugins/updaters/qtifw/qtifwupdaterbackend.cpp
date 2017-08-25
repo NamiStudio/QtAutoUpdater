@@ -4,8 +4,6 @@
 #include <QtCore/QTimer>
 #include <QtCore/QXmlStreamReader>
 
-using namespace QtAutoUpdater;
-
 QtIfwUpdaterBackend::QtIfwUpdaterBackend(const QFileInfo &toolInfo, QObject *parent) :
 	UpdateBackend(parent),
 	toolInfo(toolInfo),
@@ -13,7 +11,7 @@ QtIfwUpdaterBackend::QtIfwUpdaterBackend(const QFileInfo &toolInfo, QObject *par
 	lastErrorLog()
 {}
 
-bool QtIfwUpdaterBackend::startUpdateTool(const QStringList &arguments, AdminAuthoriser *authoriser)
+bool QtIfwUpdaterBackend::startUpdateTool(const QStringList &arguments, QtAutoUpdater::AdminAuthoriser *authoriser)
 {
 	if(authoriser && !authoriser->hasAdminRights())
 		return authoriser->executeAsAdmin(toolInfo.absoluteFilePath(), arguments);
@@ -115,7 +113,7 @@ void QtIfwUpdaterBackend::updaterError(QProcess::ProcessError error)
 	emit updateCheckFailed(errorString);
 }
 
-QList<Updater::UpdateInfo> QtIfwUpdaterBackend::parseResult(const QByteArray &output)
+QList<QtAutoUpdater::Updater::UpdateInfo> QtIfwUpdaterBackend::parseResult(const QByteArray &output)
 {
 	const auto outString = QString::fromUtf8(output);
 	const auto xmlBegin = outString.indexOf(QStringLiteral("<updates>"));
@@ -125,7 +123,7 @@ QList<Updater::UpdateInfo> QtIfwUpdaterBackend::parseResult(const QByteArray &ou
 	if(xmlEnd < 0)
 		throw NoUpdatesXmlException();
 
-	QList<Updater::UpdateInfo> updates;
+	QList<QtAutoUpdater::Updater::UpdateInfo> updates;
 	QXmlStreamReader reader(outString.mid(xmlBegin, (xmlEnd + 10) - xmlBegin));
 
 	reader.readNextStartElement();
@@ -137,9 +135,9 @@ QList<Updater::UpdateInfo> QtIfwUpdaterBackend::parseResult(const QByteArray &ou
 			throw InvalidXmlException();
 
 		auto ok = false;
-		Updater::UpdateInfo info(reader.attributes().value(QStringLiteral("name")).toString(),
-								 QVersionNumber::fromString(reader.attributes().value(QStringLiteral("version")).toString()),
-								 reader.attributes().value(QStringLiteral("size")).toULongLong(&ok));
+		QtAutoUpdater::Updater::UpdateInfo info(reader.attributes().value(QStringLiteral("name")).toString(),
+												QVersionNumber::fromString(reader.attributes().value(QStringLiteral("version")).toString()),
+												reader.attributes().value(QStringLiteral("size")).toULongLong(&ok));
 
 		if(info.name.isEmpty() || info.version.isNull() || !ok)
 			throw InvalidXmlException();

@@ -3,9 +3,7 @@
 
 #include "QtAutoUpdaterCore/updaterplugin.h"
 
-namespace QtAutoUpdater {
-
-class QtIfwUpdaterPlugin : public UpdaterPlugin
+class QtIfwUpdaterPlugin : public QtAutoUpdater::UpdaterPlugin
 {
 	Q_OBJECT
 	Q_PLUGIN_METADATA(IID UpdaterPlugin_iid FILE "qtifw.json")
@@ -13,9 +11,7 @@ class QtIfwUpdaterPlugin : public UpdaterPlugin
 public:
 	QtIfwUpdaterPlugin(QObject *parent = nullptr);
 
-	UpdateBackend *createInstance(const QByteArray &type, const QString &path, QObject *parent) override;
+	QtAutoUpdater::UpdateBackend *createInstance(const QByteArray &type, const QString &path, QObject *parent) override;
 };
-
-}
 
 #endif // QTAUTOUPDATER_QTIFWUPDATERPLUGIN_H
