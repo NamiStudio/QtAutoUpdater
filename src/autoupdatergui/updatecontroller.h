@@ -49,18 +49,22 @@ public:
 
 	//! Constructs a new controller with a parent. Will be application modal
 	explicit UpdateController(QObject *parent = nullptr);
-	//! Constructs a new controller with a parent. Will modal to the parent window
+	//! Constructs a new controller with a parent. Will be modal to the parent window
 	explicit UpdateController(QWidget *parentWindow, QObject *parent = nullptr);
-	//! Constructs a new controller with an explicitly set path and a parent. Will modal to the parent window
-	explicit UpdateController(const QString &maintenanceToolPath, QObject *parent = nullptr);
 	//! Constructs a new controller with an explicitly set path and a parent. Will be application modal
+	explicit UpdateController(const QString &maintenanceToolPath, QObject *parent = nullptr);
+	//! Constructs a new controller with an explicitly set path and a parent. Will be modal to the parent window
 	explicit UpdateController(const QString &maintenanceToolPath, QWidget *parentWindow, QObject *parent = nullptr);
+	//! Constructs a new controller with an explicitly set path, type and a parent. Will be application modal
 	explicit UpdateController(const QString &maintenanceToolPath, const QByteArray &type, QObject *parent = nullptr);
+	//! Constructs a new controller with an explicitly set path, type and a parent. Will be modal to the parent window
 	explicit UpdateController(const QString &maintenanceToolPath, const QByteArray &type, QWidget *parentWindow, QObject *parent = nullptr);
 	//! Destructor
 	~UpdateController();
 
+	//! Returns true, if the updater is valid
 	bool isValid() const;
+	//! Returns the type of updater backend used
 	QByteArray updaterType() const;
 
 	//! Create a QAction to start this controller from
