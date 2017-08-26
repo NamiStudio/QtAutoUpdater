@@ -8,13 +8,16 @@
 
 namespace QtAutoUpdater {
 
+//! The plugin interface for custom updater backend plugins
 class Q_AUTOUPDATERCORE_EXPORT UpdaterPlugin : public QObject
 {
 	Q_OBJECT
 
 public:
+	//! Constructor
 	explicit UpdaterPlugin(QObject *parent = nullptr);
 
+	//! Called by the updater to create a backend instance
 	virtual UpdateBackend *createInstance(const QByteArray &type, const QString &path, QObject *parent) = 0;
 };
 

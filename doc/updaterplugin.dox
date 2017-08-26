@@ -1,0 +1,37 @@
+/*!
+@class QtAutoUpdater::UpdaterPlugin
+
+Implement this class as a Qt Plugin (https://doc.qt.io/qt-5/plugins-howto.html)
+to create your own updater backend.
+
+The plugin must be located in a subfolder called `updaters` in the Qt plugins directory.
+Add the plugin metadata to your implementation as
+
+@code{.cpp}
+Q_PLUGIN_METADATA(IID UpdaterPlugin_iid FILE "mybackend.json")
+@endcode
+
+The `mybackend.json` file must contain the an array with the keys for the supported update backends.
+This can be multiple, or just a single one
+
+@code{.json}
+{
+	"Keys" : [ "mybackend", ... ]
+}
+@endcode
+*/
+
+/*!
+@fn QtAutoUpdater::UpdaterPlugin::createInstance
+
+@param type The type of backend to create
+@param path The path/identifier to the update tool
+@param parent The parent object for the backend
+@returns An UpdateBackend instance, or `nullptr` if not able to create one
+
+The type will be one of the list passed via the "Keys" from the json. The path is
+typically a path to an updater tool, or the binary to check updates for, depending
+on what your implementation needs.
+
+@sa UpdateBackend
+*/

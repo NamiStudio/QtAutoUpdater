@@ -57,7 +57,7 @@ public:
 	};
 
 	//! Arguments that can be used to start a normal QtIFW updater
-	static const QStringList NormalUpdateArguments;
+	static const QStringList NormalUpdateArguments;//TODO doc
 	//! Arguments that can be used to start a QtIFW updater in guided mode
 	static const QStringList PassiveUpdateArguments;
 	//! Arguments that can be used to start a QtIFW updater hidden, without showing a gui

@@ -1,0 +1,88 @@
+/*!
+@class QtAutoUpdater::UpdateBackend
+
+@note This class is only of interest if you want to create your own custom updater backend.
+
+It is used by the Updater as backend to perform the update checks. You will have to implement
+this interface for your custom backend, and provide it via an UpdaterPlugin implementation. Read
+this documentation carefully to make shure your implementation behaves as expected.
+
+@sa UpdaterPlugin, Updater
+*/
+
+/*!
+@fn QtAutoUpdater::UpdateBackend::startUpdateTool
+
+@param arguments Arbitrary arguments, to control how to start the update tool
+@param authoriser An AdminAuthoriser to to start the tool as admin, or nullptr
+@returns `true`, if the updater tool could be started successfully
+
+Your implementation should start the updater tool that comes with your backend (or whatever
+you use to perform the actual update). It should be started asynchronously, and this method
+return, as soon as it has been started.
+
+@warning This method is called from the QCoreApplication::aboutToQuit signal. This means it's
+called as last action before the application quits. Thus, your update tool must be some kind
+of seperate process. This is required, because not all platforms support updating an application
+while it is running.
+
+When implementing this method, you will have to interpret the parameters for your implementation.
+You can follow the standard arguments of Updater, or define your own ones. However, the users of your
+plugin must be told this arguments.
+
+The authorizer can be `nullptr`. This that case do not start the tool as admin/root, but as the
+current user. If it is passed, you should start it as admin/root, but using the interface.
+
+@sa Updater::runUpdaterOnExit, AdminAuthoriser, Updater::NormalUpdateArguments,
+Updater::PassiveUpdateArguments, Updater::HiddenUpdateArguments
+*/
+
+/*!
+@fn QtAutoUpdater::UpdateBackend::extendedErrorLog
+
+@returns The error log, if supported
+
+With this method you can return additional log data of an updater run
+(for example the stderr output of a running process)
+
+You can provide this independend of the updaters result, and don't have to.
+Consider it a bonus method to make debugging easier
+
+@sa Updater::extendedErrorLog
+*/
+
+/*!
+@fn QtAutoUpdater::UpdateBackend::startUpdateCheck
+
+Is called to start the update check. This method should initiate the update check and then
+return. The check itself must run asynchronously. This method does not return any errors.
+In case starting failed and once the update check finished, use the signals to report it
+
+@sa Updater::checkForUpdates, UpdateBackend::updateCheckCompleted, UpdateBackend::updateCheckFailed
+*/
+
+/*!
+@fn QtAutoUpdater::UpdateBackend::updateCheckCompleted
+
+@param updates A list with new updates (can be empty)
+
+Use this signal to tell the Updater the update check completed without any errors.
+If there are updates, pass them as parameter. An empty list means the update check
+finished, but no updates where detected.
+
+@sa Updater::updateCheckDone, UpdateBackend::startUpdateCheck, UpdateBackend::updateCheckFailed
+*/
+
+/*!
+@fn QtAutoUpdater::UpdateBackend::updateCheckFailed
+
+@param errorString A descriptive text to explain what went wrong
+
+Use this signal to tell the Updater the update check failed. Failed in this case can mean the
+update check chrashed, failed to start, or reported an unrecoverable error. Not having any new
+updates is <b>not</b> an error. Things like "no network connection" or other similar temporary errors
+are not considered "errors" either. It is the delevopers decision, but it's recommended to
+report such errors via the UpdateBackend::extendedErrorLog method instead.
+
+@sa Updater::errorString, UpdateBackend::extendedErrorLog, UpdateBackend::startUpdateCheck, UpdateBackend::updateCheckCompleted
+*/

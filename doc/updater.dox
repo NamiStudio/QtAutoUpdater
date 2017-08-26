@@ -46,6 +46,54 @@ will try to add the given extension. This will result into:
 */
 
 /*!
+@var QtAutoUpdater::Updater::NormalUpdateArguments
+
+@attention These arguments are only for the "qtifw" backend. Other backends can support them, but don't have to.
+
+You can pass these arguments to the Updater::runUpdaterOnExit method. If you don't pass any, this one
+is used as default.
+
+For the QtIFW backend, these arguments will start a normal, user-controlled update process.
+
+@sa Updater::runUpdaterOnExit
+*/
+
+/*!
+@var QtAutoUpdater::Updater::PassiveUpdateArguments
+
+@attention These arguments are only for the "qtifw" backend. Other backends can support them, but don't have to.
+
+You can pass these arguments to the Updater::runUpdaterOnExit method.
+
+@warning This option is <b>NOT</b> a standard maintenancetool option, and will not work out of the box. It passes
+an additional argument to the maintenancetool, `skipPrompt=true`, but this has no effect. You
+will have to provide a maintenancetool with an installer script that supports this option. One
+example would be https://github.com/Skycoder42/QtIFW-Advanced-Setup
+
+For the QtIFW backend, these arguments will start a passive update process. This means it will
+show a gui, but without any user interaction (The only exceptions beeing message boxes, e.g. errors
+and the final page to close the updater).
+
+@sa Updater::runUpdaterOnExit
+*/
+
+/*!
+@var QtAutoUpdater::Updater::HiddenUpdateArguments
+
+@attention These arguments are only for the "qtifw" backend. Other backends can support them, but don't have to.
+
+You can pass these arguments to the Updater::runUpdaterOnExit method.
+
+@warning Older versions of the maintenancetool do not support this option. You will need at least version 3.0.0
+
+For the QtIFW backend, these arguments will start a hidden update process. This means no gui at all is shown, it
+runs silently in the background. No message or anything is shown on completition, and there is nothing that notifies
+the user the the update completed.
+
+@sa Updater::runUpdaterOnExit
+*/
+
+/*!
 @property QtAutoUpdater::Updater::state
 
 @default{`Updater::NoUpdates`}
