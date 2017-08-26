@@ -30,7 +30,7 @@ public:
 	UpdateButtonPrivate(UpdateButton *q_ptr, UpdateController *controller);
 	~UpdateButtonPrivate();
 
-	void updateController(UpdateController *controller);
+	void changeController(UpdateController *controller);
 };
 
 }

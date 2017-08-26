@@ -64,8 +64,7 @@ Q_SIGNALS:
 
 private Q_SLOTS:
 	void startUpdate();
-	void changeUpdaterState(bool isRunning);
-	void updatesReady(int result);
+	void changeUpdaterState(int result);
 	void controllerDestroyed();
 
 private:

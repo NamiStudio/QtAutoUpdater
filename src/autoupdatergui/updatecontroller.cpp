@@ -14,25 +14,45 @@ using namespace QtAutoUpdater;
 
 UpdateController::UpdateController(QObject *parent) :
 	QObject(parent),
-	d(new UpdateControllerPrivate(this, nullptr))
+	d(new UpdateControllerPrivate(this, UpdaterPrivate::DefaultToolPath, UpdaterPrivate::DefaultUpdaterType, nullptr))
 {}
 
-UpdateController::UpdateController(QWidget *parentWidget, QObject *parent) :
+UpdateController::UpdateController(QWidget *parentWindow, QObject *parent) :
 	QObject(parent),
-	d(new UpdateControllerPrivate(this, parentWidget))
+	d(new UpdateControllerPrivate(this, UpdaterPrivate::DefaultToolPath, UpdaterPrivate::DefaultUpdaterType, parentWindow))
 {}
 
 UpdateController::UpdateController(const QString &maintenanceToolPath, QObject *parent) :
 	QObject(parent),
-	d(new UpdateControllerPrivate(this, maintenanceToolPath, nullptr))
+	d(new UpdateControllerPrivate(this, maintenanceToolPath, UpdaterPrivate::DefaultUpdaterType, nullptr))
 {}
 
-UpdateController::UpdateController(const QString &maintenanceToolPath, QWidget *parentWidget, QObject *parent) :
+UpdateController::UpdateController(const QString &maintenanceToolPath, QWidget *parentWindow, QObject *parent) :
 	QObject(parent),
-	d(new UpdateControllerPrivate(this, maintenanceToolPath, parentWidget))
+	d(new UpdateControllerPrivate(this, maintenanceToolPath, UpdaterPrivate::DefaultUpdaterType, parentWindow))
+{}
+
+UpdateController::UpdateController(const QString &maintenanceToolPath, const QByteArray &type, QObject *parent) :
+	QObject(parent),
+	d(new UpdateControllerPrivate(this, maintenanceToolPath, type, nullptr))
+{}
+
+UpdateController::UpdateController(const QString &maintenanceToolPath, const QByteArray &type, QWidget *parentWindow, QObject *parent) :
+	QObject(parent),
+	d(new UpdateControllerPrivate(this, maintenanceToolPath, type, parentWindow))
 {}
 
 UpdateController::~UpdateController(){}
+
+bool UpdateController::isValid() const
+{
+	return d->mainUpdater->isValid();
+}
+
+QByteArray UpdateController::updaterType() const
+{
+	return d->mainUpdater->updaterType();
+}
 
 QAction *UpdateController::createUpdateAction(QObject *parent)
 {
@@ -88,7 +108,7 @@ void UpdateController::setRunAsAdmin(bool runAsAdmin, bool userEditable)
 	if(d->runAdmin != runAsAdmin) {
 		d->runAdmin = runAsAdmin;
 		if(d->mainUpdater->willRunOnExit())
-			d->mainUpdater->runUpdaterOnExit(d->runAdmin ? new AdminAuthorization() : nullptr);
+			d->mainUpdater->runUpdaterOnExit(d->runArgs, d->runAdmin ? new AdminAuthorization() : nullptr);
 		emit runAsAdminChanged(runAsAdmin);
 	}
 	d->adminUserEdit = userEditable;
@@ -106,7 +126,7 @@ void UpdateController::setUpdateRunArgs(QStringList updateRunArgs)
 
 void UpdateController::resetUpdateRunArgs()
 {
-	d->runArgs = QStringList(QStringLiteral("--updater"));
+	d->runArgs = Updater::NormalUpdateArguments;
 }
 
 bool UpdateController::isDetailedUpdateInfo() const
@@ -129,9 +149,9 @@ bool UpdateController::start(DisplayLevel displayLevel)
 	if(d->running)
 		return false;
 	d->running = true;
-	emit runningChanged(true);
 	d->wasCanceled = false;
 	d->displayLevel = displayLevel;
+	emit runningChanged(true);
 
 	if(d->displayLevel >= AskLevel) {
 		if(DialogMaster::questionT(d->window,
@@ -139,6 +159,7 @@ bool UpdateController::start(DisplayLevel displayLevel)
 								   tr("Do you want to check for updates now?"))
 		   != QMessageBox::Yes) {
 			d->running = false;
+			d->wasCanceled = true;
 			emit runningChanged(false);
 			return false;
 		}
@@ -248,7 +269,7 @@ void UpdateController::updateCheckDone()
 				case UpdateInfoDialog::InstallNow:
 					shouldShutDown = true;
 				case UpdateInfoDialog::InstallLater:
-					d->mainUpdater->runUpdaterOnExit(d->runAdmin ? new AdminAuthorization() : nullptr);
+					d->mainUpdater->runUpdaterOnExit(d->runArgs, d->runAdmin ? new AdminAuthorization() : nullptr);
 					if(shouldShutDown)
 						qApp->quit();
 				case UpdateInfoDialog::NoInstall:
@@ -259,7 +280,7 @@ void UpdateController::updateCheckDone()
 				QT_WARNING_POP
 
 			} else {
-				d->mainUpdater->runUpdaterOnExit(d->runAdmin ? new AdminAuthorization() : nullptr);
+				d->mainUpdater->runUpdaterOnExit(d->runArgs, d->runAdmin ? new AdminAuthorization() : nullptr);
 				if(d->displayLevel == ExitLevel) {
 					DialogMaster::informationT(d->window,
 											   tr("Install Updates"),
@@ -270,7 +291,7 @@ void UpdateController::updateCheckDone()
 			}
 		} else {
 			if(hasError) {
-				qCWarning(logQtAutoUpdater) << "maintenancetool process finished with error string:"
+				qCWarning(logQtAutoUpdater) << "maintenancetool finished with error string:"
 											<< d->mainUpdater->errorString();
 			}
 
@@ -305,19 +326,15 @@ QIcon UpdateControllerPrivate::getUpdatesIcon()
 	return QIcon::fromTheme(QStringLiteral("system-software-update"), QIcon(QStringLiteral(":/QtAutoUpdater/icons/update.ico")));
 }
 
-UpdateControllerPrivate::UpdateControllerPrivate(UpdateController *q_ptr, QWidget *window) :
-	UpdateControllerPrivate(q_ptr, QString(), window)
-{}
-
-UpdateControllerPrivate::UpdateControllerPrivate(UpdateController *q_ptr, const QString &toolPath, QWidget *window) :
+UpdateControllerPrivate::UpdateControllerPrivate(UpdateController *q_ptr, const QString &toolPath, const QByteArray &type, QWidget *window):
 	q(q_ptr),
 	window(window),
 	displayLevel(UpdateController::InfoLevel),
 	running(false),
-	mainUpdater(toolPath.isEmpty() ? new Updater(q_ptr) : new Updater(toolPath, q_ptr)),
+	mainUpdater(new Updater(toolPath, type, q_ptr)),
 	runAdmin(true),
 	adminUserEdit(true),
-	runArgs(QStringLiteral("--updater")),
+	runArgs(Updater::NormalUpdateArguments),
 	detailedInfo(true),
 	checkUpdatesProgress(nullptr),
 	wasCanceled(false),

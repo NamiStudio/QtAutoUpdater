@@ -72,8 +72,8 @@ void UpdateButton::setDisplayLevel(UpdateController::DisplayLevel displayLevel)
 
 bool UpdateButton::setController(UpdateController *controller)
 {
-	if(d->loadingGif->state() != QMovie::Running) {
-		d->updateController(controller);
+	if(d->loadingGif->state() != QMovie::Running) {//TODO why?
+		d->changeController(controller);
 		resetState();
 		emit controllerChanged(controller);
 		return true;
@@ -87,44 +87,40 @@ void UpdateButton::startUpdate()
 		d->controller->start(d->level);
 }
 
-void UpdateButton::changeUpdaterState(bool isRunning)
+void UpdateButton::changeUpdaterState(int result)
 {
-	if(isRunning && d->loadingGif->state() != QMovie::Running) {
+	switch (result) {
+	case Updater::Running:
 		d->loadingGif->start();
 		d->ui->loaderLabel->setVisible(true);
+		d->ui->checkButton->setEnabled(false);
 		d->ui->statusLabel->setText(tr("Checking for updates…"));
 		d->ui->statusLabel->setVisible(true);
-		d->ui->checkButton->setEnabled(false);
-	} else if(!isRunning && d->loadingGif->state() == QMovie::Running) {
+		break;
+	case Updater::NoUpdates:
 		d->loadingGif->setPaused(true);
 		d->ui->loaderLabel->setVisible(false);
-		d->ui->statusLabel->setVisible(false);
 		d->ui->checkButton->setEnabled(true);
-	}
-}
-
-void UpdateButton::updatesReady(int result)
-{
-	changeUpdaterState(false);
-	if(d->showResult) {
-		switch (result) {
-		case Updater::NoUpdates:
-			d->ui->checkButton->setEnabled(true);
-			d->ui->statusLabel->setText(tr("No new updates available"));
-			break;
-		case Updater::HasUpdates:
-			d->ui->checkButton->setEnabled(false);
-			d->ui->statusLabel->setText(tr("New Update!"));
-			break;
-		case Updater::HasError:
-			d->ui->checkButton->setEnabled(true);
-			d->ui->statusLabel->setText(tr("Update check failed"));
-			break;
-		default:
-			Q_UNREACHABLE();
-			break;
-		}
-		d->ui->statusLabel->setVisible(true);
+		d->ui->statusLabel->setText(tr("No new updates available"));
+		d->ui->statusLabel->setVisible(d->showResult);
+		break;
+	case Updater::HasUpdates:
+		d->loadingGif->setPaused(true);
+		d->ui->loaderLabel->setVisible(false);
+		d->ui->checkButton->setEnabled(false);
+		d->ui->statusLabel->setText(tr("New Update!"));
+		d->ui->statusLabel->setVisible(d->showResult);
+		break;
+	case Updater::HasError:
+		d->loadingGif->setPaused(true);
+		d->ui->loaderLabel->setVisible(false);
+		d->ui->checkButton->setEnabled(true);
+		d->ui->statusLabel->setText(tr("Update check failed"));
+		d->ui->statusLabel->setVisible(d->showResult);
+		break;
+	default:
+		Q_UNREACHABLE();
+		break;
 	}
 }
 
@@ -155,20 +151,18 @@ QtAutoUpdater::UpdateButtonPrivate::UpdateButtonPrivate(UpdateButton *q_ptr, Upd
 	QObject::connect(ui->checkButton, &QPushButton::clicked,
 					 q, &UpdateButton::startUpdate);
 
-	updateController(controller);
+	changeController(controller);
 }
 
 UpdateButtonPrivate::~UpdateButtonPrivate() {}
 
-void UpdateButtonPrivate::updateController(UpdateController *controller)
+void UpdateButtonPrivate::changeController(UpdateController *controller)
 {
 	this->controller = controller;
 	if(controller) {
-		QObject::connect(this->controller.data(), &UpdateController::runningChanged,
-						 q, &UpdateButton::changeUpdaterState);
 		QObject::connect(this->controller->updater(), &Updater::stateChanged,
 						 q, [this](Updater::UpdaterState state) {
-			q->updatesReady(state);
+			q->changeUpdaterState(state);
 		});
 		QObject::connect(this->controller.data(), &UpdateController::destroyed,
 						 q, &UpdateButton::controllerDestroyed);

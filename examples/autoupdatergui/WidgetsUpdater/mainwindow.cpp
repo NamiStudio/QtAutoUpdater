@@ -67,7 +67,7 @@ void MainWindow::on_checkUpdatesButton_clicked()
 		} else
 			qDebug() << "start controller:" << controller->start((QtAutoUpdater::UpdateController::DisplayLevel)ui->displayLevelComboBox->currentIndex());
 	} else
-		qDebug() << "start controller:" << false;
+		qDebug() << "controller is already running";
 }
 
 void MainWindow::on_cancelButton_clicked()
@@ -108,9 +108,8 @@ void MainWindow::on_activeBox_toggled(bool checked)
 
 void MainWindow::on_hasParentWindowCheckBox_clicked(bool checked)
 {
-	if(controller) {
+	if(controller)
 		controller->setParentWindow(checked ? this : nullptr);
-	}
 }
 
 void MainWindow::on_detailedInfoDialogCheckBox_clicked(bool checked)

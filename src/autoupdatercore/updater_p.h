@@ -16,6 +16,9 @@ namespace QtAutoUpdater
 class Q_AUTOUPDATERCORE_EXPORT UpdaterPrivate : public QObject
 {
 public:
+	static const QString DefaultToolPath;
+	static const QByteArray DefaultUpdaterType;
+
 	Updater *q;
 	UpdateBackend *backend;
 

@@ -27,7 +27,8 @@ ProgressDialog::ProgressDialog(QWidget *parent) :
 ProgressDialog::~ProgressDialog()
 {
 #ifdef Q_OS_WIN
-	tButton->progress()->hide();
+	if(tButton->window())
+		tButton->progress()->hide();
 #endif
 }
 
@@ -84,7 +85,10 @@ void ProgressDialog::showEvent(QShowEvent *event)
 void ProgressDialog::setupTaskbar(QWidget *window)
 {
 	if(!tButton->window()) {
-		tButton->setWindow(window->windowHandle());
+		auto handle = window->windowHandle();
+		if(!handle)
+			return;
+		tButton->setWindow(handle);
 		QWinTaskbarProgress *progress = tButton->progress();
 		progress->setRange(0, 0);
 		progress->resume();
