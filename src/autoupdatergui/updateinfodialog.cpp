@@ -46,7 +46,7 @@ UpdateInfoDialog::DialogResult UpdateInfoDialog::showUpdateInfo(QList<Updater::U
 		boxInfo.icon = UpdateControllerPrivate::getUpdatesIcon();
 		boxInfo.title = tr("Updates for %1 are available!")
 						.arg(QApplication::applicationDisplayName());
-		boxInfo.text = tr("There are new updates available! You can install them now or later.");
+		boxInfo.text = tr("There are %n new update(s) available! You can install them now or later.", "", updates.size());
 		QStringList details;
 		for(auto info : updates) {
 			details << tr("%1 v%2 — %3")
@@ -84,7 +84,7 @@ UpdateInfoDialog::DialogResult UpdateInfoDialog::showUpdateInfo(QList<Updater::U
 			item->setText(0, info.name);
 			item->setText(1, info.version.toString());
 			item->setText(2, getByteText(info.size));
-			item->setToolTip(2, tr("%L1 Bytes").arg(info.size));
+			item->setToolTip(2, tr("%n Byte(s)", "", info.size));
 		}
 		dialog.ui->updateListTreeWidget->resizeColumnToContents(0);
 		dialog.ui->updateListTreeWidget->resizeColumnToContents(1);
@@ -132,7 +132,7 @@ QString UpdateInfoDialog::getByteText(qint64 bytes)
 
 	switch(counter) {
 	case 0:
-		return tr("%L1 Bytes").arg(bytes);
+		return tr("%n Byte(s)", "", bytes);
 	case 1:
 		return tr("%L1 KiB").arg(disNum, 0, 'f', 2);
 	case 2:

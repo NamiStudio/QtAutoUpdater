@@ -4,7 +4,7 @@
 <context>
     <name>AdminAuthorization</name>
     <message>
-        <location filename="../adminauthorization_x11.cpp" line="+188"/>
+        <location filename="../adminauthorization_x11.cpp" line="+193"/>
         <source>Enter Password</source>
         <translation>Passwort Eingeben</translation>
     </message>
@@ -12,44 +12,6 @@
         <location line="+1"/>
         <source>Enter your root password to run the maintenancetool:</source>
         <translation>Bitte geben sie Ihr Root-Passwort ein um das Wartungstool auszuführen:</translation>
-    </message>
-</context>
-<context>
-    <name>DialogMaster</name>
-    <message>
-        <location filename="../../3rdparty/vendor/de/skycoder42/dialog-master/dialogmaster.cpp" line="+140"/>
-        <source>Information</source>
-        <translation>Information</translation>
-    </message>
-    <message>
-        <location line="+35"/>
-        <source>Question</source>
-        <translation>Frage</translation>
-    </message>
-    <message>
-        <location line="+35"/>
-        <source>Warning</source>
-        <translation>Achtung</translation>
-    </message>
-    <message>
-        <location line="+35"/>
-        <source>Error</source>
-        <translation>Error</translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>About</source>
-        <translation>Info</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>%1 — Version %2</source>
-        <translation>%1 — Version %2</translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>&lt;p&gt;Developed by: &lt;a href=&quot;%1&quot;&gt;%2&lt;/a&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Entwickelt von: &lt;a href=&quot;%1&quot;&gt;%2&lt;/a&gt;&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -68,7 +30,7 @@
 <context>
     <name>QtAutoUpdater::ProgressDialog</name>
     <message>
-        <location filename="../progressdialog.cpp" line="+36"/>
+        <location filename="../progressdialog.cpp" line="+37"/>
         <source>Canceling update check…</source>
         <translation>Update-Suche wird abgebrochen…</translation>
     </message>
@@ -76,17 +38,22 @@
 <context>
     <name>QtAutoUpdater::UpdateButton</name>
     <message>
-        <location filename="../updatebutton.cpp" line="+95"/>
+        <location filename="../updatebutton.cpp" line="+97"/>
         <source>Checking for updates…</source>
         <translation>Suche nach Updates…</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+14"/>
         <source>New Update!</source>
         <translation>Neues Update verfügbar!</translation>
     </message>
     <message>
-        <location line="+0"/>
+        <location line="+7"/>
+        <source>Update check failed</source>
+        <translation>Suche nach Updates fehlgeschlagen</translation>
+    </message>
+    <message>
+        <location line="-14"/>
         <source>No new updates available</source>
         <translation>Keine neuen Updates verfügbar</translation>
     </message>
@@ -94,32 +61,32 @@
 <context>
     <name>QtAutoUpdater::UpdateController</name>
     <message>
-        <location filename="../updatecontroller.cpp" line="+40"/>
+        <location filename="../updatecontroller.cpp" line="+60"/>
         <location line="+98"/>
-        <location line="+12"/>
-        <location line="+75"/>
-        <location line="+49"/>
+        <location line="+13"/>
+        <location line="+79"/>
+        <location line="+51"/>
         <location line="+4"/>
         <source>Check for Updates</source>
         <translation>Suche nach Updates</translation>
     </message>
     <message>
-        <location line="-139"/>
+        <location line="-146"/>
         <source>Do you want to check for updates now?</source>
         <translation>Möchten Sie jetzt nach Updates suchen?</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+13"/>
         <source>The program is already checking for updates!</source>
         <translation>Das Programm sucht bereits nach neuen Updates!</translation>
     </message>
     <message>
-        <location line="+75"/>
+        <location line="+79"/>
         <source>Checking for updates was canceled!</source>
         <translation>Suche nach Updates wurde abgebrochen!</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+35"/>
         <source>Install Updates</source>
         <translation>Updates Installieren</translation>
     </message>
@@ -129,17 +96,17 @@
         <translation>Neue Updates sind verfügbar. Das Wartungstool wird starten um diese zu installieren, sobald Sie die Anwendung schließen!</translation>
     </message>
     <message>
-        <location line="+21"/>
-        <source>The update process crashed!</source>
-        <translation>Der Update-Prozess ist abgestürzt!</translation>
+        <location line="+15"/>
+        <source>Failed to check for updates!</source>
+        <translation>Suche nach Updates fehlgeschlagen!</translation>
     </message>
     <message>
-        <location line="-4"/>
+        <location line="+4"/>
         <source>No new updates available!</source>
         <translation>Es sind keine neuen Updates verfügbar!</translation>
     </message>
     <message>
-        <location line="-232"/>
+        <location line="-243"/>
         <source>Checks if new updates are available. You will be prompted before updates are installed.</source>
         <translation>Überprüft, ob neue Updates verfügbar sind. Sie erhalten eine entsprechende Meldung bevor Diese installiert werden.</translation>
     </message>
@@ -153,13 +120,7 @@
         <translation>Updates für %1 sind verfügbar!</translation>
     </message>
     <message>
-        <location line="+40"/>
-        <location line="+48"/>
-        <source>%L1 Bytes</source>
-        <translation>%L1 Byte</translation>
-    </message>
-    <message>
-        <location line="-73"/>
+        <location line="+15"/>
         <source>Install Now</source>
         <translation>Jetzt Installieren</translation>
     </message>
@@ -179,10 +140,13 @@
         <source>Check for Updates</source>
         <translation>Suche nach Updates</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location line="+4"/>
-        <source>There are new updates available! You can install them now or later.</source>
-        <translation>Es sind neue Updates verfügbar! Sie können diese jetzt oder später installieren.</translation>
+        <source>There are %n new update(s) available! You can install them now or later.</source>
+        <translation>
+            <numerusform>Es ist %n neues Update verfügbar! Sie können dieses jetzt oder später installieren.</numerusform>
+            <numerusform>Es sind %n neue Updates verfügbar! Sie können diese jetzt oder später installieren.</numerusform>
+        </translation>
     </message>
     <message>
         <location line="+3"/>
@@ -199,8 +163,17 @@
         <source>Install later</source>
         <translation>Später Installieren</translation>
     </message>
+    <message numerus="yes">
+        <location line="+23"/>
+        <location line="+48"/>
+        <source>%n Byte(s)</source>
+        <translation>
+            <numerusform>%n Byte</numerusform>
+            <numerusform>%n Byte</numerusform>
+        </translation>
+    </message>
     <message>
-        <location line="+42"/>
+        <location line="-29"/>
         <source>Install Now?</source>
         <translation>Jetzt Installieren?</translation>
     </message>
