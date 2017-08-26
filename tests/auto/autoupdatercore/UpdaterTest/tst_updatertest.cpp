@@ -76,7 +76,7 @@ void UpdaterTest::testUpdaterInitState()
 #else
 	QCOMPARE(updater->maintenanceToolPath(), QStringLiteral("./maintenancetool"));
 #endif
-	QCOMPARE(updater->state(), Updater::NoUpdates);
+	QCOMPARE(updater->state(), Updater::HasError);//because of the invalid path
 	QVERIFY(updater->updateInfo().isEmpty());
 
 	//deprecated fns

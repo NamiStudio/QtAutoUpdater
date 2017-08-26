@@ -30,6 +30,6 @@ The actual elevation and execution should be done using this function. Please no
 is called while the QCoreApplication is shutting down. If `false` is returned, no error will be shown to the user. If you want
 to do so, do it inside that function.
 
-@note `program` will return an absolute path using normal slashes `/`, even on windows. If you need to use native APIs,
+@note `program` will be an absolute path using normal slashes `/`, even on windows. If you need to use native APIs,
 get the correct path using QDir::toNativeSeparators.
 */

@@ -12,6 +12,10 @@ a gui and the Core-Library.
  - Updater
  - AdminAuthoriser
 
+#### Classes for custom updater plugins
+ - UpdaterPlugin
+ - UpdateBackend
+
 ## Widgets-Libray:
  - UpdateController
  - UpdateButton

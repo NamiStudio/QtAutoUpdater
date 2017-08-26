@@ -6,7 +6,7 @@ evalute the results of the tool and generate update information of it. In additi
 it can schedule the maintenancetool to run in updater mode as soon as the application
 finishes. (This requires the Updater instance to exist until QCoreApplication::quit is called).
 
-@sa @ref index REAMDE.md, QtAutoUpdater::UpdateController
+@sa @ref index "REAMDE.md", QtAutoUpdater::UpdateController
 */
 
 /*!
@@ -15,7 +15,17 @@ finishes. (This requires the Updater instance to exist until QCoreApplication::q
 @default{`./maintenancetool` on Windows/X11, `../../maintenancetool` on mac}
 
 The path of the maintenancetool has to be set inside of the constructor and cannot be
-changed later.<br/>
+changed later. The same goes for the Updater::updaterType. You can use the Updater::isValid
+method to check if the given tool and type are valid.
+
+The updater type decides which plugin to load as backend for the updater. The default
+one is the "qtifw" backend, which supports update checks via the Qt Installer Framework (QtIFW).
+The maintenancetool path is passed to that plugin the get an instance for the given updater.
+
+Depending on the updater backend type you choose, that path can be something sligthly different,
+check the documentation of those in that case.
+
+<b>For QtIFW Updaters:</b><br/>
 The path will be resolved relative to QCoreApplication::applicationDirPath(), the location
 of the currently running application.
 
@@ -32,23 +42,24 @@ will try to add the given extension. This will result into:
 	@finalAc
 }
 
-@sa Updater::Updater(QObject *), Updater::Updater(const QString &, QObject *)
+@sa Updater::isValid, Updater::updaterType, Updater::Updater
 */
 
 /*!
-@property QtAutoUpdater::Updater::running
+@property QtAutoUpdater::Updater::state
 
-@default{`false`}
+@default{`Updater::NoUpdates`}
 
-The updater can only check for updates once at a time. If this property returns `true`,
+The updater can only check for updates once at a time. If this property returns `Updater::Running`,
 you will have to wait for it to finish to get your update result or check for updates again.
+The other states describe the possible results of an update check.
 
 @accessors{
-	@readAc{isRunning()}
-	@notifyAc{runningChanged()}
+	@readAc{state()}
+	@notifyAc{stateChanged()}
 }
 
-@sa Updater::checkForUpdates, Updater::abortUpdateCheck, Updater::exitedNormally, Updater::errorCode, Updater::errorLog
+@sa Updater::checkForUpdates, Updater::abortUpdateCheck, Updater::UpdaterState, Updater::errorLog
 */
 
 /*!
@@ -58,9 +69,9 @@ you will have to wait for it to finish to get your update result or check for up
 
 The update result is only valid for the last update check and won't be updated until
 you check for updates again. When checking for updates, the list will be cleared before
-the updater starts the check.<br>
+the updater starts the check.<br/>
 To find out whether the list is truly empty or just because the updater is running, use
-the Updater::running property. If it returns `false`, you can assume that the value of this
+the Updater::state property. If it returns anything but `Updater::Running`, you can assume that the value of this
 property is the result of the last update check (if one happend).
 
 @accessors{
@@ -68,7 +79,7 @@ property is the result of the last update check (if one happend).
 	@notifyAc{updateInfoChanged()}
 }
 
-@sa Updater::running
+@sa Updater::state
 */
 
 /*!
@@ -76,7 +87,8 @@ property is the result of the last update check (if one happend).
 
 @param parent The object parent for QObject
 
-The maintenancetool path will be set to the default one (and cannot be changed).
+The maintenancetool path will be set to the default one and the updater backend type
+to "qtifw". Both cannot be changed afterwards
 See Updater::maintenanceToolPath for more details.
 
 @sa Updater::maintenanceToolPath
@@ -86,7 +98,27 @@ See Updater::maintenanceToolPath for more details.
 @fn QtAutoUpdater::Updater::Updater(const QString &, QObject *)
 
 @param maintenanceToolPath The path to the maintenancetool
-@copydetails Updater::Updater(QObject *)
+@param parent The object parent for QObject
+
+The maintenancetool path will be set to the given one and the updater backend type
+to "qtifw". Both cannot be changed afterwards
+See Updater::maintenanceToolPath for more details.
+
+@sa Updater::maintenanceToolPath
+*/
+
+/*!
+@fn QtAutoUpdater::Updater::Updater(const QString &, const QByteArray &, QObject *)
+
+@param maintenanceToolPath The path to the maintenancetool
+@param type The updater backend type
+@param parent The object parent for QObject
+
+The maintenancetool path and the updater backend type will be set to the given ones.
+Both cannot be changed afterwards
+See Updater::maintenanceToolPath for more details.
+
+@sa Updater::maintenanceToolPath
 */
 
 /*!
@@ -100,65 +132,53 @@ Updater::abortUpdateCheck to gracefully shut down the maintenancetool
 */
 
 /*!
-@fn QtAutoUpdater::Updater::exitedNormally
+@fn QtAutoUpdater::Updater::isValid
 
-@returns `true`, if the maintenancetool finished normally, `false` if not
+@returns `true`, if the updater is valid
 
-Exiting normally does **not** mean the the update was successfull, only that the
-maintenancetool exited itself and was not killed or crashed.<br/>
-If `false` is returned, in most cases the process either crashed or was never even
-able to start. Use Updater::errorCode to get the code. If the tool failed to start,
-it's most certanly because of an invalid path to the maintenancetool.
+An updater is valid, if the choosen backend type exists and the corresponding plugin
+allowed the given maintenancetool path. An invalid updater will not be able to do anything,
+and permanently stay in the `Updater::HasError` state.
 
-While the updater is running, this function will always return `true`.
-
-@attention Depending on the return of this function, the meaning of Updater::errorCode
-and Updater::errorLog will change!
-
-@sa Updater::running, Updater::errorCode, Updater::errorLog
+@sa Updater::state, Updater::Updater, Updater::maintenanceToolPath
 */
 
 /*!
-@fn QtAutoUpdater::Updater::errorCode
+@fn QtAutoUpdater::Updater::updaterType
 
-@returns The exit-code of the maintenancetool or an error code
+@returns The type of updater backend used
 
-@attention The meaning of this functions return value depends on what Updater::exitedNormally
-returns
+The type is set via the constructor and cannot be changed. See Updater::maintenanceToolPath
+for details.
 
-If the maintenancetool exited normally, this function will return the actual exit code
-of the maintenancetool. Please note that `EXIT_SUCCESS (0)` means that there are updates
-available and `EXIT_FAILURE (1)` can mean either no updates or some other kind of error. Thus, the
-exit code is no indicator for success or failure. Please check the
-[Qt Installer Framework](https://doc.qt.io/qtinstallerframework/) documentation for more details
-about the tool itself.
-
-If the maintenancetool did not exit normally, the returned error-code will be one of
-QProcess::ProcessError.
-
-While the updater is running, this function will always return 0.
-
-@sa Updater::exitedNormally, Updater::running, Updater::errorLog
+@sa Updater::Updater, Updater::maintenanceToolPath
 */
 
 /*!
-@fn QtAutoUpdater::Updater::errorLog
+@fn QtAutoUpdater::Updater::errorString
+
+@returns The error string in case of an error
+
+The error string is only set when the updater is in the `Updater::HasError` state.
+It can be used to retrieve details about why it is in that state
+
+@sa Updater::state, Updater::extendedErrorLog
+*/
+
+/*!
+@fn QtAutoUpdater::Updater::extendedErrorLog
 
 @returns The error log of the last run of the maintenancetool
 
-@attention The meaning of this functions return value depends on what Updater::exitedNormally
-returns
+This function will return some kind of extended log the updater backend produces. It can
+be used in both, error and normal cases, to get more information about the update process
+(e.g. warnings, soft errors, etc).
 
-If the maintenancetool exited normally, this function will return the stderr (standard error)
-output generated by the maintenancetool. If the maintenancetool actually fails, you
-can use this to find out why.
+@note For the "qtifw" backend, the stderr of the maintenancetool process is returned. For
+other backends, this can be anything. It's possible for plugins to ignore this extra log.
+In this case this method will not return anything.
 
-If the maintenancetool did not exit normally, the returned log will be the error
-string of the last devide error of the process, i.e. QProcess::errorString
-
-While the updater is running, this function will always return an empty QByteArray.
-
-@sa Updater::exitedNormally, Updater::errorCode, Updater::running
+@sa Updater::state, Updater::errorString
 */
 
 /*!
@@ -166,7 +186,7 @@ While the updater is running, this function will always return an empty QByteArr
 
 @returns `true`, if the maintenancetool will run on application exit
 
-@sa Updater::runUpdaterOnExit(AdminAuthoriser *), Updater::cancelExitRun
+@sa Updater::runUpdaterOnExit, Updater::cancelExitRun
 */
 
 /*!
@@ -174,19 +194,14 @@ While the updater is running, this function will always return an empty QByteArr
 
 @returns `true`, if the check for updates process was started
 
-Checking for updates means that the maintenancetool will be run in background
-using `--checkupdates` as parameter. The function will return immideatly after the
-process was started.
+Checking for updates means that the maintenancetool will be run in background to
+check for new updates. This function returns immediatly and only reports whether the
+update check was started or not.
 
-If no update process is currently running, `true` will be returned, no matter whether the
-maintenancetool was actually startet or not. To check if it was successfull, wait for
-checkUpdatesDone() to be emitted and check the result using the error functions.
-Updater::running will be set to `true`.
-
-If the updater is already running the maintenancetool, `false` will be returned and
+If the updater is already in Updater::Running state, `false` will be returned and
 nothing will happen.
 
-@sa Updater::abortUpdateCheck, Updater::checkUpdatesDone, Updater::running,
+@sa Updater::abortUpdateCheck, Updater::updateCheckDone, Updater::state,
 Updater::updateInfo
 */
 
@@ -194,26 +209,22 @@ Updater::updateInfo
 @fn QtAutoUpdater::Updater::abortUpdateCheck
 
 @param maxDelay The maximum delay to wait for the process to gracefully finish
-@param async If `true`, the wait will be done asynchrounusly
 
-Tries to abort the update check. If no update is currently running (Updater::running
-returns `false`), nothing will happen.
+Tries to abort the update check. If no update is currently running
+(not in Updater::Running state), nothing will happen.
 
 If `maxDelay` is greater than 0, the updater will try to gracefully terminate
-(QProcess::terminate) the process. After this is done, the updater will wait at most
-`maxDelay` milliseconds for the process to finish. If it doesn't, it will be killed
-(QProcess::kill).
-
-If `async` is `false`, this function will block and not return until the process was actually
-terminated (or killed). If it's `true`, the function will return immediately. You can
-use Updater::running. To find out when the process actually finishes.
+the process asynchronously. If the updater does not finish before the timeout,
+or if the method is called with a delay of 0, it will be killed. The function
+will return immediately. You can use Updater::state to find out when the process
+actually finishes.
 
 @warning In most cases there will be no side-effects of an abort. However, if the tool has to be killed,
 because of no delay or a timeout, this may cause unwanted effects. As an example, you may not be able to
 start the tool until you restart your system, or worst case scenario, break the installation.
 If possible, do not abort the check, but instead just wait for it to finish.
 
-@sa Updater::checkForUpdates, Updater::running, Updater::exitedNormally
+@sa Updater::checkForUpdates, Updater::state
 */
 
 /*!
@@ -263,9 +274,7 @@ Cancels the task with the id `taskId`. If there was a task with that ID, you can
 that it will be canceled. If the task was not until the point you call this function, it
 will not be triggered anymore.
 
-@sa Updater::scheduleUpdate(int , bool),
-Updater::scheduleUpdate(const QDateTime &),
-Updater::abortUpdateCheck
+@sa Updater::scheduleUpdat, Updater::abortUpdateCheck
 */
 
 /*!
@@ -274,14 +283,13 @@ Updater::abortUpdateCheck
 @param authoriser An optional admin authoriser instance to execture the updater as admin
 
 Schedules the maintenancetool to be run on exit. This means that as soon as the
-application exits, the updater will run the maintenancetool (with the default parameter `--updater`)
-detached. This way you can let the user do the actual update if you found that there
-are new updates.
+application exits, the updater will run the maintenancetool to install updates, detached.
+This way you can let the user do the actual update if you found that there are new updates.
 
 @attention For this to work, this updater instance must exist (not be deleted) until
 QCoreApplication::aboutToQuit was emitted, since that's what the updater will use to
 determine that the application is exiting and to start the maintenancetool. If an updater
-with a run on exit is destroyed, a warning will be generated.
+with a run on exit is destroyed before that, a warning will be generated.
 
 The `authoriser` is an optional parameter that can be used to provide elevated rights.
 If it points to an AdminAuthoriser, that one will be used to start the maintenancetool
@@ -308,26 +316,17 @@ you cann use Updater::cancelExitRun.
 Cancels the "run on exit". If the maintenancetool was scheduled to be run at exit, this
 function will cancel that and nothing will happend on exit.
 
-@sa Updater::willRunOnExit, Updater::runUpdaterOnExit(AdminAuthoriser *)
+@sa Updater::willRunOnExit, Updater::runUpdaterOnExit
 */
 
 /*!
-@fn QtAutoUpdater::Updater::checkUpdatesDone
+@fn QtAutoUpdater::Updater::updateCheckDone
 
 @param hasUpdates Specifies whether or not the new updates could be found
-@param hasError `true`, if the updater did not exit normally or provided invalid data, `false` if everything is ok
 
 `hasUpdates` can be used to determine if there are updates. If it is set to true, you
-can assume that Updater::updateInfo contains at least one value (but it's not guaranteed).
+can assume that there are updates. If it is false, either no updates are available
+or something went wrong.
 
-`hasError` basically summarises the error state. If it is `false`, everything is ok. If
-it is `true`, the maintenancetool did not work properly. You can use the error functions
-to find out if and what went wrong.
-
-@note If `hasError` is false, it does not neccesarily mean that everything went fine. Since
-the maintenancetool returns `EXIT_FAILURE (1)` if no new updates are available, it cannot be
-used as an error indicator, you will have to use the other functions provided to get the actual error.
-
-@sa Updater::checkForUpdates, Updater::running, Updater::updateInfo, Updater::exitedNormally,
-Updater::errorCode, Updater::errorLog
+@sa Updater::checkForUpdates, Updater::state, Updater::updateInfo, Updater::errorString
 */

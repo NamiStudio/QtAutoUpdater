@@ -23,16 +23,18 @@ class Q_AUTOUPDATERCORE_EXPORT Updater : public QObject
 
 	//! Holds the path of the attached maintenancetool
 	Q_PROPERTY(QString maintenanceToolPath READ maintenanceToolPath CONSTANT FINAL)
+	//! Holds the updaters current state
 	Q_PROPERTY(UpdaterState state READ state NOTIFY stateChanged)
 	//! Holds extended information about the last update check
 	Q_PROPERTY(QList<UpdateInfo> updateInfo READ updateInfo NOTIFY updateInfoChanged)
 
 public:
+	//! The updaters state
 	enum UpdaterState {
-		NoUpdates,
-		Running,
-		HasUpdates,
-		HasError
+		NoUpdates, //!< The updater is not running and has no updates
+		Running, //!< The updater is running, checking for updates
+		HasUpdates, //!< The updater finished and detected new updates
+		HasError //!< The updater failed to start, crashed or similar and could not check for updates
 	};
 	Q_ENUM(UpdaterState)
 
@@ -54,33 +56,42 @@ public:
 		UpdateInfo(QString name, QVersionNumber version, quint64 size);
 	};
 
+	//! Arguments that can be used to start a normal QtIFW updater
 	static const QStringList NormalUpdateArguments;
+	//! Arguments that can be used to start a QtIFW updater in guided mode
 	static const QStringList PassiveUpdateArguments;
+	//! Arguments that can be used to start a QtIFW updater hidden, without showing a gui
 	static const QStringList HiddenUpdateArguments;
 
 	//! Default constructor
 	explicit Updater(QObject *parent = nullptr);
 	//! Constructer with an explicitly set path
 	explicit Updater(const QString &maintenanceToolPath, QObject *parent = nullptr);
+	//! Constructer with an explicitly set path and updater type
 	explicit Updater(const QString &maintenanceToolPath, const QByteArray &type, QObject *parent = nullptr);
 	//! Destroyes the updater and kills the update check (if running)
 	~Updater();
 
+	//! Returns true, if the updater is valid
 	bool isValid() const;
+	//! Returns the type of updater backend used
 	QByteArray updaterType() const;
 	//! Returns the mainetancetools error string of the last update
 	QString errorString() const;
+	//! Returns an extended error log of the update process
 	QByteArray extendedErrorLog() const;
 
 	//! Returns `true` if the maintenancetool will be started on exit
 	bool willRunOnExit() const;
 
-	//! readAcFn{Updater::maintenanceToolPath}
+	//! @readAcFn{Updater::maintenanceToolPath}
 	QString maintenanceToolPath() const;
+	//! @readAcFn{Updater::state}
 	UpdaterState state() const;
-	//! readAcFn{Updater::updateInfo}
+	//! @readAcFn{Updater::updateInfo}
 	QList<UpdateInfo> updateInfo() const;
 
+	//! Returns a list of all supported updater backend types
 	static QByteArrayList supportedUpdaterTypes();
 
 	QT_DEPRECATED bool exitedNormally() const;
@@ -108,9 +119,11 @@ public Q_SLOTS:
 	void cancelExitRun();
 
 Q_SIGNALS:
+	//! Is emitted by the updater when it finished to check for updates
 	void updateCheckDone(bool hasUpdates);
+	//! @notifyAcFn{Updater::state}
 	void stateChanged(UpdaterState state);
-	//! notifyAcFn{Updater::updateInfo}
+	//! @notifyAcFn{Updater::updateInfo}
 	void updateInfoChanged(QList<QtAutoUpdater::Updater::UpdateInfo> updateInfo);
 
 	QT_DEPRECATED void checkUpdatesDone(bool hasUpdates, bool hasError);

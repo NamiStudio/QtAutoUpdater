@@ -217,13 +217,15 @@ UpdaterPrivate::UpdaterPrivate(const QString &maintenanceToolPath, const QByteAr
 	adminAuth(nullptr)
 {
 	backend = PluginLoader::instance()->getBackend(type, maintenanceToolPath, this);
-
-	if(backend) {
-		connect(backend, &UpdateBackend::updateCheckCompleted,
-				this, &UpdaterPrivate::updateCheckCompleted);
-		connect(backend, &UpdateBackend::updateCheckFailed,
-				this, &UpdaterPrivate::updateCheckFailed);
+	if(!backend) {
+		state = Updater::HasError;
+		return;
 	}
+
+	connect(backend, &UpdateBackend::updateCheckCompleted,
+			this, &UpdaterPrivate::updateCheckCompleted);
+	connect(backend, &UpdateBackend::updateCheckFailed,
+			this, &UpdaterPrivate::updateCheckFailed);
 
 	connect(qApp, &QCoreApplication::aboutToQuit,
 			this, &UpdaterPrivate::appAboutToExit,
