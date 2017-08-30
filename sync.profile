@@ -8,4 +8,6 @@
 	"updater.h" => "Updater",
 	"updatebutton.h" => "UpdateButton",
 	"updatecontroller.h" => "UpdateController",
+	"updatebackend.h" => "UpdateBackend",
+	"updaterplugin.h" => "UpdaterPlugin",
 );
