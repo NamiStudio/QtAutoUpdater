@@ -11,6 +11,9 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	qputenv("QTAUTOUPDATERCORE_PLUGIN_OVERWRITE",
+			(QCoreApplication::applicationDirPath() + QStringLiteral("/../../../plugins/updaters/")).toUtf8());
+
 	QtAutoUpdater::Updater *updater = new QtAutoUpdater::Updater(a.arguments()[1], nullptr);
 	QObject::connect(updater, &QtAutoUpdater::Updater::updateCheckDone, [updater](bool hasUpdate){
 		qDebug() << "Has updates:" << hasUpdate

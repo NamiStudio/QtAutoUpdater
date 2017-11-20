@@ -17,46 +17,48 @@ PluginLoader::PluginLoader() :
 	plugins()
 {
 	//find the plugin dir
-	QDir pluginDir;
+	QList<QDir> dirs;
+
+	QDir pluginMainDir = QLibraryInfo::location(QLibraryInfo::PluginsPath);
+	if(pluginMainDir.cd(QStringLiteral("updater")))
+		dirs.append(pluginMainDir);
+
 	auto path = qgetenv("QTAUTOUPDATERCORE_PLUGIN_OVERWRITE");
 	if(!path.isEmpty())
-		pluginDir = QString::fromUtf8(path);
-	else {
-		QDir pluginDir = QLibraryInfo::location(QLibraryInfo::PluginsPath);
-		if(!pluginDir.cd(QStringLiteral("updater")))
-			return;
-	}
+		dirs.append(QString::fromUtf8(path));
 
-	foreach(auto info, pluginDir.entryInfoList(QDir::Files | QDir::Readable | QDir::NoDotAndDotDot)) {
-		auto plugin = new QPluginLoader(info.absoluteFilePath(), this);
-		auto metaData = plugin->metaData();
+	foreach(auto pluginDir, dirs) {
+		foreach(auto info, pluginDir.entryInfoList(QDir::Files | QDir::Readable | QDir::NoDotAndDotDot)) {
+			auto plugin = new QPluginLoader(info.absoluteFilePath(), this);
+			auto metaData = plugin->metaData();
 
-		if(metaData[QStringLiteral("IID")].toString() != QStringLiteral(UpdaterPlugin_iid)) {
-			qCWarning(logQtAutoUpdater) << "File" << info.absoluteFilePath() << "is not an updater plugin";
-			plugin->deleteLater();
-			continue;
+			if(metaData[QStringLiteral("IID")].toString() != QStringLiteral(UpdaterPlugin_iid)) {
+				qCWarning(logQtAutoUpdater) << "File" << info.absoluteFilePath() << "is not an updater plugin";
+				plugin->deleteLater();
+				continue;
+			}
+
+			//skip non-matching types
+	#ifdef QT_NO_DEBUG
+			if(metaData[QStringLiteral("debug")].toBool()) {
+	#else
+			if(!metaData[QStringLiteral("debug")].toBool()) {
+	#endif
+				plugin->deleteLater();
+				continue;
+			}
+
+			auto data = metaData[QStringLiteral("MetaData")].toObject();
+			auto keys = data[QStringLiteral("Keys")].toArray();
+			if(keys.isEmpty()) {
+				qCWarning(logQtAutoUpdater) << "Plugin" << info.absoluteFilePath() << "is does not provide any updaters";
+				plugin->deleteLater();
+				continue;
+			}
+
+			foreach(auto key, keys)
+				plugins.insert(key.toString().toUtf8(), plugin);
 		}
-
-		//skip non-matching types
-#ifdef QT_NO_DEBUG
-		if(metaData[QStringLiteral("debug")].toBool()) {
-#else
-		if(!metaData[QStringLiteral("debug")].toBool()) {
-#endif
-			plugin->deleteLater();
-			continue;
-		}
-
-		auto data = metaData[QStringLiteral("MetaData")].toObject();
-		auto keys = data[QStringLiteral("Keys")].toArray();
-		if(keys.isEmpty()) {
-			qCWarning(logQtAutoUpdater) << "Plugin" << info.absoluteFilePath() << "is does not provide any updaters";
-			plugin->deleteLater();
-			continue;
-		}
-
-		foreach(auto key, keys)
-			plugins.insert(key.toString().toUtf8(), plugin);
 	}
 }
 

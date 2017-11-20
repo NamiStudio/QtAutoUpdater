@@ -3,21 +3,23 @@ TARGET = QtAutoUpdaterCore
 QT = core
 
 HEADERS += \
-    adminauthoriser.h \
-    updater_p.h \
-    updater.h \
-    simplescheduler_p.h \
-    qtautoupdatercore_global.h \
-    updaterplugin.h \
-    updatebackend.h \
-    pluginloader_p.h
+	adminauthoriser.h \
+	updater_p.h \
+	updater.h \
+	simplescheduler_p.h \
+	qtautoupdatercore_global.h \
+	updaterplugin.h \
+	updatebackend.h \
+	pluginloader_p.h
 
 SOURCES += \
-    simplescheduler.cpp \
-    updater.cpp \
-    updaterplugin.cpp \
-    updatebackend.cpp \
-    pluginloader.cpp
+	simplescheduler.cpp \
+	updater.cpp \
+	updaterplugin.cpp \
+	updatebackend.cpp \
+	pluginloader.cpp
+
+MODULE_PLUGIN_TYPES = updaters
 
 load(qt_module)
 

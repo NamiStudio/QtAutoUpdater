@@ -45,7 +45,7 @@ void UpdaterTest::initTestCase()
 #endif
 
 	qputenv("QTAUTOUPDATERCORE_PLUGIN_OVERWRITE",
-			OUTDIR + QByteArray("../../../../plugins/updaters/"));
+			(QCoreApplication::applicationDirPath() + QStringLiteral("/../../../../plugins/updaters/")).toUtf8());
 
 	qRegisterMetaType<Updater::UpdaterState>("UpdaterState");
 
