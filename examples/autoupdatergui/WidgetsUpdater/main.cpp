@@ -9,8 +9,7 @@ int main(int argc, char *argv[])
 	QApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/main.ico")));
 	QApplication::setApplicationDisplayName(QStringLiteral("Widgets-Test"));
 
-	qputenv("QTAUTOUPDATERCORE_PLUGIN_OVERWRITE",
-			(QCoreApplication::applicationDirPath() + QStringLiteral("/../../../plugins/updaters/")).toUtf8());
+	qputenv("PLUGIN_UPDATERS_PATH", DBG_PLUGIN_DIR);
 
 	MainWindow w;
 	w.show();
