@@ -32,12 +32,12 @@ UpdateController::UpdateController(const QString &maintenanceToolPath, QWidget *
 	d(new UpdateControllerPrivate(this, maintenanceToolPath, UpdaterPrivate::DefaultUpdaterType, parentWindow))
 {}
 
-UpdateController::UpdateController(const QString &maintenanceToolPath, const QByteArray &type, QObject *parent) :
+UpdateController::UpdateController(const QString &maintenanceToolPath, const QString &type, QObject *parent) :
 	QObject(parent),
 	d(new UpdateControllerPrivate(this, maintenanceToolPath, type, nullptr))
 {}
 
-UpdateController::UpdateController(const QString &maintenanceToolPath, const QByteArray &type, QWidget *parentWindow, QObject *parent) :
+UpdateController::UpdateController(const QString &maintenanceToolPath, const QString &type, QWidget *parentWindow, QObject *parent) :
 	QObject(parent),
 	d(new UpdateControllerPrivate(this, maintenanceToolPath, type, parentWindow))
 {}
@@ -49,7 +49,7 @@ bool UpdateController::isValid() const
 	return d->mainUpdater->isValid();
 }
 
-QByteArray UpdateController::updaterType() const
+QString UpdateController::updaterType() const
 {
 	return d->mainUpdater->updaterType();
 }
@@ -326,7 +326,7 @@ QIcon UpdateControllerPrivate::getUpdatesIcon()
 	return QIcon::fromTheme(QStringLiteral("system-software-update"), QIcon(QStringLiteral(":/QtAutoUpdater/icons/update.ico")));
 }
 
-UpdateControllerPrivate::UpdateControllerPrivate(UpdateController *q_ptr, const QString &toolPath, const QByteArray &type, QWidget *window):
+UpdateControllerPrivate::UpdateControllerPrivate(UpdateController *q_ptr, const QString &toolPath, const QString &type, QWidget *window):
 	q(q_ptr),
 	window(window),
 	displayLevel(UpdateController::InfoLevel),

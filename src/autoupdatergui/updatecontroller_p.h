@@ -38,7 +38,7 @@ public:
 
 	SimpleScheduler *scheduler;
 
-	UpdateControllerPrivate(UpdateController *q_ptr, const QString &toolPath, const QByteArray &type, QWidget *window);
+	UpdateControllerPrivate(UpdateController *q_ptr, const QString &toolPath, const QString &type, QWidget *window);
 	~UpdateControllerPrivate();
 };
 

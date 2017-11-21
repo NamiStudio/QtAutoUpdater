@@ -12,7 +12,7 @@ class QtIfwUpdaterPlugin : public QObject, public QtAutoUpdater::UpdaterPlugin
 public:
 	QtIfwUpdaterPlugin(QObject *parent = nullptr);
 
-	QtAutoUpdater::UpdateBackend *createInstance(const QByteArray &type, const QString &path, QObject *parent) override;
+	QtAutoUpdater::UpdateBackend *createInstance(const QString &type, const QString &path, QObject *parent) override;
 };
 
 #endif // QTAUTOUPDATER_QTIFWUPDATERPLUGIN_H

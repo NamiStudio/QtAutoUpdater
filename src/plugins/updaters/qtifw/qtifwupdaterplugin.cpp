@@ -9,9 +9,9 @@ QtIfwUpdaterPlugin::QtIfwUpdaterPlugin(QObject *parent) :
 	UpdaterPlugin()
 {}
 
-QtAutoUpdater::UpdateBackend *QtIfwUpdaterPlugin::createInstance(const QByteArray &type, const QString &path, QObject *parent)
+QtAutoUpdater::UpdateBackend *QtIfwUpdaterPlugin::createInstance(const QString &type, const QString &path, QObject *parent)
 {
-	if(type == "qtifw") {
+	if(type == QStringLiteral("qtifw")) {
 		QFileInfo fileInfo(QCoreApplication::applicationDirPath(), QtIfwUpdaterBackend::toSystemExe(path));
 		if(fileInfo.exists())
 			return new QtIfwUpdaterBackend(fileInfo, parent);
