@@ -35,3 +35,4 @@ Makefile*
 
 doc_generated
 *.qm
+.qpmx-dev-cache

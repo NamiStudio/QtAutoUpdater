@@ -1,0 +1,12 @@
+{
+    "devDependencies": [
+        {
+            "package": "de.skycoder42.qpluginfactory",
+            "path": "../../../QPluginFactory/",
+            "provider": "qpm",
+            "version": "1.0.0"
+        }
+    ],
+    "devmode": [
+    ]
+}

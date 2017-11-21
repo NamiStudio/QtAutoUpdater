@@ -1,9 +1,11 @@
 #include "updater.h"
 #include "updater_p.h"
-#include "pluginloader_p.h"
+#include "updaterplugin.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
+
+#include "qpluginfactory.h"
 
 using namespace QtAutoUpdater;
 
@@ -12,6 +14,9 @@ Q_LOGGING_CATEGORY(logQtAutoUpdater, "QtAutoUpdater")
 const QStringList Updater::NormalUpdateArguments = {QStringLiteral("--updater")};
 const QStringList Updater::PassiveUpdateArguments = {QStringLiteral("--updater"), QStringLiteral("skipPrompt=true")};
 const QStringList Updater::HiddenUpdateArguments = {QStringLiteral("--silentUpdate")};
+
+typedef QPluginObjectFactory<UpdaterPlugin, UpdateBackend> Factory;
+Q_GLOBAL_STATIC_WITH_ARGS(Factory, factory, (QLatin1String("updaters")))
 
 Updater::Updater(QObject *parent) :
 	QObject(parent),
@@ -23,7 +28,7 @@ Updater::Updater(const QString &maintenanceToolPath, QObject *parent)  :
 	d(new UpdaterPrivate(maintenanceToolPath, UpdaterPrivate::DefaultUpdaterType, this))
 {}
 
-Updater::Updater(const QString &maintenanceToolPath, const QByteArray &type, QObject *parent) :
+Updater::Updater(const QString &maintenanceToolPath, const QString &type, QObject *parent) :
 	QObject(parent),
 	d(new UpdaterPrivate(maintenanceToolPath, type, this))
 {}
@@ -42,7 +47,7 @@ bool Updater::isValid() const
 	return d->backend;
 }
 
-QByteArray Updater::updaterType() const
+QString Updater::updaterType() const
 {
 	return d->type;
 }
@@ -80,9 +85,9 @@ QList<Updater::UpdateInfo> Updater::updateInfo() const
 	return d->updateInfos;
 }
 
-QByteArrayList Updater::supportedUpdaterTypes()
+QStringList Updater::supportedUpdaterTypes()
 {
-	return PluginLoader::instance()->listTypes();
+	return factory->allKeys();
 }
 
 bool Updater::exitedNormally() const
@@ -200,9 +205,9 @@ const QString UpdaterPrivate::DefaultToolPath = QStringLiteral("../../maintenanc
 #else
 const QString UpdaterPrivate::DefaultToolPath = QStringLiteral("./maintenancetool");
 #endif
-const QByteArray UpdaterPrivate::DefaultUpdaterType = "qtifw";
+const QString UpdaterPrivate::DefaultUpdaterType = QStringLiteral("qtifw");
 
-UpdaterPrivate::UpdaterPrivate(const QString &maintenanceToolPath, const QByteArray &type, Updater *q_ptr) :
+UpdaterPrivate::UpdaterPrivate(const QString &maintenanceToolPath, const QString &type, Updater *q_ptr) :
 	QObject(nullptr),
 	q(q_ptr),
 	backend(nullptr),
@@ -216,7 +221,7 @@ UpdaterPrivate::UpdaterPrivate(const QString &maintenanceToolPath, const QByteAr
 	runArguments(),
 	adminAuth(nullptr)
 {
-	backend = PluginLoader::instance()->getBackend(type, maintenanceToolPath, this);
+	backend = factory->createInstance(type, maintenanceToolPath, this);
 	if(!backend) {
 		state = Updater::HasError;
 		return;

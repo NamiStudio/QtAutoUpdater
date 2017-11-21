@@ -3,10 +3,11 @@
 
 #include "QtAutoUpdaterCore/updaterplugin.h"
 
-class QtIfwUpdaterPlugin : public QtAutoUpdater::UpdaterPlugin
+class QtIfwUpdaterPlugin : public QObject, public QtAutoUpdater::UpdaterPlugin
 {
 	Q_OBJECT
-	Q_PLUGIN_METADATA(IID UpdaterPlugin_iid FILE "qtifw.json")
+	Q_PLUGIN_METADATA(IID QtAutoUpdater_UpdaterPlugin_iid FILE "qtifw.json")
+	Q_INTERFACES(QtAutoUpdater::UpdaterPlugin)
 
 public:
 	QtIfwUpdaterPlugin(QObject *parent = nullptr);

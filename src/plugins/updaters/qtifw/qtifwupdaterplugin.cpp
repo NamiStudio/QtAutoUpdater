@@ -5,7 +5,8 @@
 #include <QtCore/QDir>
 
 QtIfwUpdaterPlugin::QtIfwUpdaterPlugin(QObject *parent) :
-	UpdaterPlugin(parent)
+	QObject(parent),
+	UpdaterPlugin()
 {}
 
 QtAutoUpdater::UpdateBackend *QtIfwUpdaterPlugin::createInstance(const QByteArray &type, const QString &path, QObject *parent)

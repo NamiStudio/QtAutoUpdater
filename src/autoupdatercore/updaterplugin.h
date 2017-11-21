@@ -9,20 +9,19 @@
 namespace QtAutoUpdater {
 
 //! The plugin interface for custom updater backend plugins
-class Q_AUTOUPDATERCORE_EXPORT UpdaterPlugin : public QObject
+class Q_AUTOUPDATERCORE_EXPORT UpdaterPlugin
 {
-	Q_OBJECT
-
 public:
-	//! Constructor
-	explicit UpdaterPlugin(QObject *parent = nullptr);
+	virtual inline ~UpdaterPlugin() = default;
 
 	//! Called by the updater to create a backend instance
-	virtual UpdateBackend *createInstance(const QByteArray &type, const QString &path, QObject *parent) = 0;
+	virtual UpdateBackend *createInstance(const QString &type, const QString &path, QObject *parent) = 0;
 };
 
-#define UpdaterPlugin_iid "de.skycoder42.qtautoupdater.core.UpdaterPlugin"
-
 }
+
+#define QtAutoUpdater_UpdaterPlugin_iid "de.skycoder42.qtautoupdater.core.UpdaterPlugin"
+
+Q_DECLARE_INTERFACE(QtAutoUpdater::UpdaterPlugin, QtAutoUpdater_UpdaterPlugin_iid)
 
 #endif // QTAUTOUPDATER_UPDATERPLUGIN_H

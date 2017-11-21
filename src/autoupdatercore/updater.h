@@ -68,14 +68,14 @@ public:
 	//! Constructer with an explicitly set path
 	explicit Updater(const QString &maintenanceToolPath, QObject *parent = nullptr);
 	//! Constructer with an explicitly set path and updater type
-	explicit Updater(const QString &maintenanceToolPath, const QByteArray &type, QObject *parent = nullptr);
+	explicit Updater(const QString &maintenanceToolPath, const QString &type, QObject *parent = nullptr);
 	//! Destroyes the updater and kills the update check (if running)
 	~Updater();
 
 	//! Returns true, if the updater is valid
 	bool isValid() const;
 	//! Returns the type of updater backend used
-	QByteArray updaterType() const;
+	QString updaterType() const;
 	//! Returns the mainetancetools error string of the last update
 	QString errorString() const;
 	//! Returns an extended error log of the update process
@@ -92,7 +92,7 @@ public:
 	QList<UpdateInfo> updateInfo() const;
 
 	//! Returns a list of all supported updater backend types
-	static QByteArrayList supportedUpdaterTypes();
+	static QStringList supportedUpdaterTypes();
 
 	QT_DEPRECATED bool exitedNormally() const;
 	QT_DEPRECATED QByteArray errorLog() const;

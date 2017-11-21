@@ -17,13 +17,13 @@ class Q_AUTOUPDATERCORE_EXPORT UpdaterPrivate : public QObject
 {
 public:
 	static const QString DefaultToolPath;
-	static const QByteArray DefaultUpdaterType;
+	static const QString DefaultUpdaterType;
 
 	Updater *q;
 	UpdateBackend *backend;
 
 	QString toolPath;
-	QByteArray type;
+	QString type;
 	Updater::UpdaterState state;
 	QList<Updater::UpdateInfo> updateInfos;
 	QString lastErrorString;
@@ -34,7 +34,7 @@ public:
 	QStringList runArguments;
 	QScopedPointer<AdminAuthoriser> adminAuth;
 
-	UpdaterPrivate(const QString &maintenanceToolPath, const QByteArray &type, Updater *q_ptr);
+	UpdaterPrivate(const QString &maintenanceToolPath, const QString &type, Updater *q_ptr);
 
 public Q_SLOTS:
 	void updateCheckCompleted(const QList<Updater::UpdateInfo> &updates);
