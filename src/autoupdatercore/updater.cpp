@@ -221,9 +221,16 @@ UpdaterPrivate::UpdaterPrivate(const QString &maintenanceToolPath, const QString
 	runArguments(),
 	adminAuth(nullptr)
 {
-	backend = factory->createInstance(type, maintenanceToolPath, this);
-	if(!backend) {
+	try {
+		backend = factory->createInstance(type, maintenanceToolPath, this);
+		if(!backend) {
+			state = Updater::HasError;
+			lastErrorString = QStringLiteral("Failed to acquire backend for type %1").arg(type);
+			return;
+		}
+	} catch(QPluginLoadException &e) {
 		state = Updater::HasError;
+		lastErrorString = QString::fromUtf8(e.what());
 		return;
 	}
 
